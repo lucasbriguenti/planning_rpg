@@ -145,6 +145,62 @@
 .ach-desc   { font-size: 0.75rem; color: $color-text-muted; margin-bottom: 2px; }
 .ach-reward { font-size: 0.7rem; color: $color-gold; font-weight: 600; }
 
+// Azure Integration
+.integration-card { padding: $spacing-md; display: flex; flex-direction: column; gap: $spacing-md; }
+
+.integration-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.integration-info {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+}
+
+.integration-icon { font-size: 1.5rem; flex-shrink: 0; }
+.integration-name { font-family: $font-fantasy; font-size: 0.95rem; color: $color-text; margin-bottom: 2px; }
+.integration-desc { font-size: 0.75rem; color: $color-text-muted; max-width: 420px; }
+
+.pat-status {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.pat-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  &.configured { background: rgba(39,174,96,0.15); color: #27ae60; }
+  &.empty      { background: rgba(149,165,166,0.15); color: $color-text-muted; }
+}
+
+.pat-masked { font-size: 0.8rem; color: $color-text-muted; letter-spacing: 0.1em; }
+.pat-org    { font-size: 0.8rem; color: $color-accent; font-family: $font-mono; }
+
+.pat-form   { display: flex; flex-direction: column; gap: $spacing-sm; }
+.pat-fields { display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-sm; }
+
+.pat-input-wrap {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+  .form-control { flex: 1; font-family: $font-mono; font-size: 0.85rem; letter-spacing: 0.05em; }
+}
+
+.pat-toggle { flex-shrink: 0; }
+
+.pat-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+}
+
 .loading-content { text-align: center; }
 
 @media (max-width: $bp-md) {

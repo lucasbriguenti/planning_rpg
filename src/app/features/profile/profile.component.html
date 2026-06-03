@@ -92,8 +92,92 @@
       </div>
     </section>
 
-    <!-- Achievements -->
+    <!-- Azure Integration -->
     <section class="section animate-fade-in-up animate-delay-2">
+      <div class="section-title">🔧 Integrações</div>
+      <div class="rpg-card integration-card">
+        <div class="integration-header">
+          <div class="integration-info">
+            <span class="integration-icon">☁️</span>
+            <div>
+              <div class="integration-name">Azure DevOps — PAT</div>
+              <div class="integration-desc">
+                Personal Access Token usado para automações (work items, boards, pipelines).
+                Armazenado de forma privada e acessível apenas por você.
+              </div>
+            </div>
+          </div>
+          @if (!editingPat()) {
+            <button class="btn btn-ghost btn-sm" (click)="startPatEdit()">
+              {{ azureConfig() ? 'Alterar' : 'Configurar' }}
+            </button>
+          }
+        </div>
+
+        @if (!editingPat()) {
+          <div class="pat-status">
+            @if (azureConfig()) {
+              <span class="pat-badge configured">✓ Configurado</span>
+              <span class="pat-org">{{ azureConfig()!.organization }} / {{ azureConfig()!.project }}</span>
+              <span class="pat-masked">••••••••••••••••••••</span>
+            } @else {
+              <span class="pat-badge empty">Não configurado</span>
+            }
+          </div>
+        } @else {
+          <div class="pat-form">
+            <div class="pat-fields">
+              <input
+                type="text"
+                class="form-control"
+                [value]="orgInput()"
+                (input)="orgInput.set($any($event.target).value)"
+                placeholder="Organização (ex: minha-empresa)"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <input
+                type="text"
+                class="form-control"
+                [value]="projectInput()"
+                (input)="projectInput.set($any($event.target).value)"
+                placeholder="Projeto (ex: MeuProjeto)"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <div class="pat-input-wrap">
+              <input
+                [type]="showPat() ? 'text' : 'password'"
+                class="form-control"
+                [value]="patInput()"
+                (input)="patInput.set($any($event.target).value)"
+                placeholder="Personal Access Token"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button class="btn btn-ghost btn-sm pat-toggle" (click)="showPat.set(!showPat())" type="button">
+                {{ showPat() ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            <div class="pat-actions">
+              <button class="btn btn-ghost btn-sm" (click)="cancelPatEdit()" type="button">Cancelar</button>
+              <button
+                class="btn btn-primary btn-sm"
+                (click)="savePat()"
+                type="button"
+                [disabled]="savingPat() || !patInput().trim() || !orgInput().trim() || !projectInput().trim()"
+              >
+                {{ savingPat() ? '...' : '💾 Salvar' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Achievements -->
+    <section class="section animate-fade-in-up animate-delay-3">
       <div class="section-title">🏆 Conquistas</div>
       <div class="achievements-grid">
         @for (ach of allAchievements; track ach.id) {

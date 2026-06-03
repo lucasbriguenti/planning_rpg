@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { SessionService } from '../../../core/services/session.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { AzureService } from '../../../core/services/azure.service';
 import { UserProfile, CHARACTER_CLASSES } from '../../../core/models/user.model';
 import { Session } from '../../../core/models/session.model';
 import { Story, StoryCategory, STORY_CATEGORIES, PLANNING_CARDS, CARD_RARITY, CARD_SUIT } from '../../../core/models/story.model';
@@ -25,6 +26,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly sessionService = inject(SessionService);
   private readonly notify = inject(NotificationService);
+  private readonly azureService = inject(AzureService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
@@ -40,6 +42,11 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   readonly selectedCard = signal<number | string | null>(null);
   readonly showAddStory = signal(false);
   readonly revealAnimation = signal(false);
+
+  readonly azureConfig = signal<{ pat: string; organization: string; project: string } | null>(null);
+  readonly showAzureModal = signal(false);
+  readonly azureUsNumber = signal('');
+  readonly loadingUs = signal(false);
 
   readonly isHost = computed(() => this.session()?.hostId === this.currentUser()?.uid);
   readonly currentStory = computed(() => this.stories().find(s => s.id === this.session()?.currentStoryId));
@@ -95,6 +102,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
       this.userService.getProfile(authUser.uid).pipe(take(1)).subscribe(profile => {
         this.currentUser.set(profile ?? null);
       });
+      this.userService.getAzureConfig(authUser.uid).then(cfg => this.azureConfig.set(cfg));
     });
 
     this.subs.add(
@@ -182,6 +190,28 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     this.votes.set([]);
     this.selectedCard.set(null);
     this.voteSub?.unsubscribe();
+  }
+
+  async importFromAzure(): Promise<void> {
+    const cfg     = this.azureConfig();
+    const session = this.session();
+    const idStr   = this.azureUsNumber().trim();
+    const id      = parseInt(idStr, 10);
+    if (!cfg || !session || !idStr || isNaN(id) || this.loadingUs()) return;
+
+    this.loadingUs.set(true);
+    try {
+      const item = await this.azureService.getWorkItem(cfg.organization, cfg.project, cfg.pat, id);
+      await this.sessionService.addStory(session.id, `[US#${id}] ${item.title}`, item.description);
+      this.notify.success('História importada!', `US #${id} adicionada à sessão.`);
+      this.showAzureModal.set(false);
+      this.azureUsNumber.set('');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Não foi possível buscar a US.';
+      this.notify.error('Erro ao buscar US', msg);
+    } finally {
+      this.loadingUs.set(false);
+    }
   }
 
   async addStory(): Promise<void> {

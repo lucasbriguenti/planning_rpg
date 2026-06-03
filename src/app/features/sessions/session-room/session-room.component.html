@@ -26,6 +26,11 @@
           <button class="btn btn-ghost btn-sm" (click)="showAddStory.set(!showAddStory())">
             + História
           </button>
+          @if (azureConfig()) {
+            <button class="btn btn-azure btn-sm" (click)="showAzureModal.set(true)">
+              ☁️ Obter do Azure
+            </button>
+          }
           @if (session()!.status !== 'completed') {
             <button class="btn btn-danger btn-sm" (click)="completeSession()">
               Encerrar Sessão
@@ -322,6 +327,41 @@
         }
       </main>
     </div>
+
+    <!-- Azure Import Modal -->
+    @if (showAzureModal()) {
+      <div class="modal-overlay" (click)="showAzureModal.set(false)">
+        <div class="modal-card animate-fade-in-scale" (click)="$event.stopPropagation()">
+          <h2 class="modal-title">☁️ Obter US do Azure</h2>
+          <p class="modal-subtitle">
+            Informe o número da User Story para importar o título e descrição.
+          </p>
+          <input
+            type="number"
+            class="form-control azure-us-input"
+            [value]="azureUsNumber()"
+            (input)="azureUsNumber.set($any($event.target).value)"
+            placeholder="Ex: 12345"
+            min="1"
+            (keydown.enter)="importFromAzure()"
+            autofocus
+          />
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" (click)="showAzureModal.set(false)">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-azure"
+              (click)="importFromAzure()"
+              [disabled]="loadingUs() || !azureUsNumber().trim()"
+            >
+              {{ loadingUs() ? '⏳ Buscando...' : '☁️ Importar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 } @else {
   <div class="loading-overlay">

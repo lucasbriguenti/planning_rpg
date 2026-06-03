@@ -25,6 +25,14 @@ export class ProfileComponent implements OnInit {
   readonly loading = signal(true);
   readonly xpProgress = signal({ current: 0, required: 100, percentage: 0 });
 
+  readonly azureConfig  = signal<{ pat: string; organization: string; project: string } | null>(null);
+  readonly patInput     = signal('');
+  readonly orgInput     = signal('');
+  readonly projectInput = signal('');
+  readonly showPat      = signal(false);
+  readonly editingPat   = signal(false);
+  readonly savingPat    = signal(false);
+
   readonly allAchievements = ACHIEVEMENTS;
   readonly classes = Object.entries(CHARACTER_CLASSES).map(([key, val]) => ({ key: key as CharacterClass, ...val }));
   readonly getLevelTitle = getLevelTitle;
@@ -40,6 +48,7 @@ export class ProfileComponent implements OnInit {
         },
         error: () => { this.loading.set(false); },
       });
+      this.userService.getAzureConfig(authUser.uid).then(cfg => this.azureConfig.set(cfg));
     });
   }
 
@@ -49,6 +58,41 @@ export class ProfileComponent implements OnInit {
 
   getClassInfo(cls: string) {
     return (CHARACTER_CLASSES as Record<string, (typeof CHARACTER_CLASSES)[keyof typeof CHARACTER_CLASSES] | undefined>)[cls];
+  }
+
+  startPatEdit(): void {
+    const cfg = this.azureConfig();
+    this.patInput.set('');
+    this.orgInput.set(cfg?.organization ?? '');
+    this.projectInput.set(cfg?.project ?? '');
+    this.showPat.set(false);
+    this.editingPat.set(true);
+  }
+
+  cancelPatEdit(): void {
+    this.editingPat.set(false);
+    this.showPat.set(false);
+  }
+
+  async savePat(): Promise<void> {
+    const user = this.currentUser();
+    const pat  = this.patInput().trim();
+    const org  = this.orgInput().trim();
+    const proj = this.projectInput().trim();
+    if (!user || !pat || !org || !proj || this.savingPat()) return;
+    this.savingPat.set(true);
+    try {
+      const config = { pat, organization: org, project: proj };
+      await this.userService.saveAzureConfig(user.uid, config);
+      this.azureConfig.set(config);
+      this.editingPat.set(false);
+      this.showPat.set(false);
+      this.notify.success('Integração salva!', 'Azure DevOps configurado com sucesso.');
+    } catch {
+      this.notify.error('Erro', 'Não foi possível salvar a configuração.');
+    } finally {
+      this.savingPat.set(false);
+    }
   }
 
   async changeClass(cls: CharacterClass): Promise<void> {

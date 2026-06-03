@@ -95,4 +95,16 @@ export class UserService {
   async updateCharacterClass(uid: string, characterClass: string): Promise<void> {
     await updateDoc(doc(this.db, 'users', uid), { characterClass, updatedAt: new Date() });
   }
+
+  async getAzureConfig(uid: string): Promise<{ pat: string; organization: string; project: string } | null> {
+    const snap = await getDoc(doc(this.db, 'users', uid, 'private', 'azure'));
+    if (!snap.exists()) return null;
+    const d = snap.data();
+    if (!d['pat'] || !d['organization'] || !d['project']) return null;
+    return { pat: d['pat'] as string, organization: d['organization'] as string, project: d['project'] as string };
+  }
+
+  async saveAzureConfig(uid: string, config: { pat: string; organization: string; project: string }): Promise<void> {
+    await setDoc(doc(this.db, 'users', uid, 'private', 'azure'), { ...config, updatedAt: new Date() });
+  }
 }

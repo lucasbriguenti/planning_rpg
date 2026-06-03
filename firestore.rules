@@ -1,44 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Users: only the owner can write, anyone authenticated can read
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow create, update: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Sessions: authenticated users can read
-    match /sessions/{sessionId} {
-      allow read: if request.auth != null;
-
-      // Creator must set themselves as host
-      allow create: if request.auth != null
-        && request.resource.data.hostId == request.auth.uid;
-
-      // Host can update anything; non-hosts can only touch 'participants' and 'updatedAt'
-      allow update: if request.auth != null && (
-        resource.data.hostId == request.auth.uid
-        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants', 'updatedAt'])
-      );
-
-      // Stories: only the session host can write
-      match /stories/{storyId} {
-        allow read: if request.auth != null;
-        allow write: if request.auth != null
-          && get(/databases/$(database)/documents/sessions/$(sessionId)).data.hostId == request.auth.uid;
-
-        // Votes: each user writes only their own vote;
-        // the host can delete any vote (to reset before a new round)
-        match /votes/{voteId} {
-          allow read: if request.auth != null;
-          allow create, update: if request.auth != null && request.auth.uid == voteId;
-          allow delete: if request.auth != null && (
-            request.auth.uid == voteId
-            || get(/databases/$(database)/documents/sessions/$(sessionId)).data.hostId == request.auth.uid
-          );
-        }
-      }
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
