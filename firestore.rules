@@ -13,29 +13,38 @@ service cloud.firestore {
       allow read: if request.auth != null;
 
       // Creator must set themselves as host
-      allow create: if request.auth != null && request.resource.data.hostId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.hostId == request.auth.uid;
 
-      // Host can update anything; others can only join (cannot change hostId, status, name or invite Code)
+      // Host can update anything; non-hosts can only touch 'participants' and 'updatedAt'
       allow update: if request.auth != null && (
-        resource.data.hostId == request.auth.uid ||
-        (
-          request.resource.data.hostId    == resource.data.hostId &&
-          request.resource.data.status    == resource.data.status &&
-          request.resource.data.name      == resource.data.name   &&
-          request.resource.data.inviteCode == resource.data.inviteCode
+        resource.data.hostId == request.auth.uid
+        || (
+          request.resource.data.hostId          == resource.data.hostId         &&
+          request.resource.data.status          == resource.data.status         &&
+          request.resource.data.name            == resource.data.name           &&
+          request.resource.data.inviteCode      == resource.data.inviteCode     &&
+          request.resource.data.currentStoryId  == resource.data.currentStoryId &&
+          request.resource.data.totalStories    == resource.data.totalStories   &&
+          request.resource.data.completedStories == resource.data.completedStories
         )
       );
 
       // Stories: only the session host can write
       match /stories/{storyId} {
         allow read: if request.auth != null;
-        allow write: if request.auth != null &&
-          get(/databases/$(database)/documents/sessions/$(sessionId)).data.hostId == request.auth.uid;
+        allow write: if request.auth != null
+          && get(/databases/$(database)/documents/sessions/$(sessionId)).data.hostId == request.auth.uid;
 
-        // Votes: each user writes only their own vote
+        // Votes: each user writes only their own vote;
+        // the host can delete any vote (to reset before a new round)
         match /votes/{voteId} {
           allow read: if request.auth != null;
-          allow write: if request.auth != null && request.auth.uid == voteId;
+          allow create, update: if request.auth != null && request.auth.uid == voteId;
+          allow delete: if request.auth != null && (
+            request.auth.uid == voteId
+            || get(/databases/$(database)/documents/sessions/$(sessionId)).data.hostId == request.auth.uid
+          );
         }
       }
     }
