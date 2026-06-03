@@ -1,0 +1,328 @@
+@if (!loading() && session()) {
+  <div class="session-room">
+    <!-- Session Header -->
+    <div class="session-header animate-fade-in-up">
+      <div class="header-left">
+        <button class="btn btn-ghost btn-sm" routerLink="/dashboard">← Sair</button>
+        <div>
+          <h1 class="session-title">{{ session()!.name }}</h1>
+          <div class="session-meta">
+            <span class="status-badge" [class]="'status-' + session()!.status">
+              {{
+                session()!.status === 'waiting'
+                  ? '⏳ Aguardando'
+                  : session()!.status === 'active'
+                    ? '⚔️ Em Andamento'
+                    : '✅ Concluída'
+              }}
+            </span>
+            <span class="meta-item">👥 {{ session()!.participants.length }} participantes</span>
+            <span class="meta-item invite-code">🔑 {{ session()!.inviteCode }}</span>
+          </div>
+        </div>
+      </div>
+      @if (isHost()) {
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" (click)="showAddStory.set(!showAddStory())">
+            + História
+          </button>
+          @if (session()!.status !== 'completed') {
+            <button class="btn btn-danger btn-sm" (click)="completeSession()">
+              Encerrar Sessão
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="room-layout">
+      <!-- Left: Story List + Participants -->
+      <aside class="room-sidebar">
+        <!-- Participants -->
+        <div class="rpg-card sidebar-card">
+          <h3 class="sidebar-title">👥 Participantes</h3>
+          <div class="participants-list">
+            @for (p of session()!.participants; track p.uid) {
+              <div class="participant-item">
+                <div class="avatar avatar-sm">
+                  {{ getClassInfo(p.characterClass)?.icon ?? '👤' }}
+                </div>
+                <div class="participant-info">
+                  <span class="participant-name">{{ p.displayName }}</span>
+                  <span class="participant-class">{{ getClassInfo(p.characterClass)?.name }}</span>
+                </div>
+                @if (currentStory()?.status === 'voting') {
+                  <div class="participant-vote-indicator">
+                    @if (getParticipantVote(p.uid)) {
+                      <span class="voted">✅</span>
+                    } @else {
+                      <span class="pending">⏳</span>
+                    }
+                  </div>
+                }
+                @if (p.isHost) {
+                  <span class="host-badge">👑</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Stories List -->
+        <div class="rpg-card sidebar-card">
+          <h3 class="sidebar-title">📋 Histórias</h3>
+
+          <!-- Add Story Form -->
+          @if (showAddStory() && isHost()) {
+            <div class="add-story-form" [formGroup]="storyForm">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                formControlName="title"
+                placeholder="Título da história"
+              />
+              <div class="category-selector">
+                @for (cat of storyCategoryEntries; track cat[0]) {
+                  <button
+                    type="button"
+                    class="category-btn"
+                    [class.active]="storyCategory() === cat[0]"
+                    [style.--cat-color]="cat[1].color"
+                    (click)="storyCategory.set(cat[0])"
+                  >
+                    {{ cat[1].icon }} {{ cat[1].label }}
+                  </button>
+                }
+              </div>
+              <div class="add-story-actions">
+                <button class="btn btn-ghost btn-sm" (click)="showAddStory.set(false)">
+                  Cancelar
+                </button>
+                <button class="btn btn-primary btn-sm" (click)="addStory()">Adicionar</button>
+              </div>
+            </div>
+          }
+
+          <div class="stories-list">
+            @for (story of stories(); track story.id) {
+              <div
+                class="story-item"
+                [class.active]="story.id === session()!.currentStoryId"
+                [class.completed]="story.status === 'completed'"
+                (click)="story.status === 'pending' && isHost() ? startVoting(story.id) : null"
+              >
+                <div class="story-status-icon">
+                  {{
+                    story.status === 'completed'
+                      ? '✅'
+                      : story.status === 'voting' || story.status === 'revealed'
+                        ? '🗳️'
+                        : '📌'
+                  }}
+                </div>
+                <div class="story-info">
+                  <span class="story-title">{{ story.title }}</span>
+                  <div class="story-meta">
+                    @if (story.category) {
+                      <span class="category-badge category-{{ story.category }}">
+                        {{ storyCategories[story.category].icon }} {{ storyCategories[story.category].label }}
+                      </span>
+                    }
+                    @if (story.finalEstimate !== undefined) {
+                      <span class="story-estimate">{{ story.finalEstimate }} pts</span>
+                    }
+                  </div>
+                </div>
+                @if (story.status === 'pending' && isHost()) {
+                  <span class="start-hint">Clique para votar</span>
+                }
+              </div>
+            }
+            @if (stories().length === 0) {
+              <div class="empty-stories">Nenhuma história adicionada</div>
+            }
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center: Voting Area -->
+      <main class="room-main">
+        <!-- Current story voting -->
+        @if (
+          currentStory() && (currentStory()!.status === 'voting' || currentStory()!.status === 'revealed')
+        ) {
+          <div>
+            <!-- Story info -->
+            <div class="voting-story-card rpg-card animate-fade-in-up">
+              <div class="voting-story-header">
+                <div class="voting-badge">⚔️ Estimando</div>
+                <div class="vote-progress">{{ votedCount() }}/{{ participantCount() }} votaram</div>
+              </div>
+              <h2 class="voting-story-title">{{ currentStory()!.title }}</h2>
+              @if (currentStory()!.description) {
+                <p class="voting-story-desc">{{ currentStory()!.description }}</p>
+              }
+
+              <!-- Progress bar -->
+              <div class="vote-progress-bar">
+                <div
+                  class="vote-progress-fill"
+                  [style.width.%]="participantCount() > 0 ? (votedCount() / participantCount()) * 100 : 0"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Revealed Results -->
+            @if (currentStory()!.status === 'revealed' && voteResult()) {
+              <div class="results-area animate-fade-in-scale">
+                <div class="results-card rpg-card" [class.consensus]="voteResult()!.consensus">
+                  <div class="results-header">
+                    <h3>
+                      {{
+                        voteResult()!.consensus ? '🎯 Consenso Perfeito!' : '📊 Resultado da Votação'
+                      }}
+                    </h3>
+                    @if (voteResult()!.consensus) {
+                      <div class="consensus-badge">CONSENSO</div>
+                    }
+                  </div>
+
+                  <div class="results-stats">
+                    <div class="result-stat">
+                      <span class="result-value">{{ voteResult()!.average | number: '1.1-1' }}</span>
+                      <span class="result-label">Média</span>
+                    </div>
+                    <div class="result-stat">
+                      <span class="result-value">{{ voteResult()!.min }}</span>
+                      <span class="result-label">Mínimo</span>
+                    </div>
+                    <div class="result-stat">
+                      <span class="result-value">{{ voteResult()!.max }}</span>
+                      <span class="result-label">Máximo</span>
+                    </div>
+                  </div>
+
+                  <!-- Distribution -->
+                  <div class="distribution">
+                    @for (entry of getDistributionEntries(); track entry.value) {
+                      <div class="dist-bar">
+                        <span class="dist-value">{{ entry.value }}</span>
+                        <div class="dist-bar-track">
+                          <div class="dist-bar-fill" [style.width.%]="entry.percentage"></div>
+                        </div>
+                        <span class="dist-count">{{ entry.count }}x</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Votes revealed -->
+                  <div class="votes-revealed" [class.animate-reveal]="revealAnimation()">
+                    @for (vote of voteResult()!.votes; track vote.id) {
+                      <div class="vote-card-revealed" [class]="'rarity-' + cardRarity[vote.value]">
+                        <div class="vote-card-value">{{ vote.value }}</div>
+                        <div class="vote-card-user">{{ vote.userName }}</div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Finalize -->
+                  @if (isHost()) {
+                    <div class="finalize-area">
+                      <p class="finalize-hint">Escolha a estimativa final:</p>
+                      <div class="finalize-options">
+                        @for (card of cards; track card) {
+                          <button
+                            class="btn btn-ghost btn-sm finalize-btn"
+                            (click)="finalizeStory(card)"
+                          >
+                            {{ card }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Voting Cards -->
+            @if (currentStory()!.status === 'voting') {
+              <div class="cards-area">
+                @if (!hasVoted()) {
+                  <h3 class="cards-title">Escolha sua estimativa:</h3>
+                }
+                @if (hasVoted()) {
+                  <div class="cards-voted-msg">
+                    <span class="voted-icon">✅</span>
+                    Você votou <strong>{{ myVote()?.value }}</strong> — aguardando os demais...
+                  </div>
+                }
+
+                @if (!hasVoted()) {
+                  <div class="cards-grid">
+                    @for (card of cards; track card; let i = $index) {
+                      <button
+                        class="poker-card"
+                        [ngClass]="['rarity-' + cardRarity[card], selectedCard() === card ? 'selected' : '']"
+                        (click)="castVote(card)"
+                        [disabled]="submittingVote()"
+                      >
+                        <span class="card-corner card-tl">{{ card }}</span>
+                        <span class="card-suit">{{ getCardSuit(card) }}</span>
+                        <span class="card-corner card-br">{{ card }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+
+                <!-- Host: Reveal button -->
+                @if (isHost()) {
+                  <div class="host-controls">
+                    <button
+                      class="btn btn-gold btn-lg"
+                      (click)="revealVotes()"
+                      [disabled]="votedCount() === 0"
+                    >
+                      🔮 Revelar Votos ({{ votedCount() }}/{{ participantCount() }})
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- No active voting -->
+          <div class="waiting-area rpg-card animate-fade-in-up">
+            <div class="waiting-icon animate-float">🏰</div>
+            <h2>
+              {{
+                session()!.status === 'waiting'
+                  ? 'Aguardando início...'
+                  : 'Selecione uma história para votar'
+              }}
+            </h2>
+            @if (isHost() && pendingStories().length > 0) {
+              <p>Clique em uma história na lista lateral para iniciar a votação.</p>
+            }
+            @if (!isHost()) {
+              <p>Aguarde o mestre da guilda iniciar a votação.</p>
+            }
+            @if (session()!.status === 'waiting') {
+              <div class="session-code-display">
+                <p>Compartilhe o código para convidar participantes:</p>
+                <div class="big-code">{{ session()!.inviteCode }}</div>
+              </div>
+            }
+          </div>
+        }
+      </main>
+    </div>
+  </div>
+} @else {
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-icon">⚔️</div>
+      <p>Carregando sessão...</p>
+    </div>
+  </div>
+}

@@ -1,0 +1,48 @@
+<div class="create-page">
+  <div class="page-header animate-fade-in-up">
+    <button class="btn btn-ghost btn-sm" routerLink="/dashboard">← Voltar</button>
+    <h1 class="page-title">⚔️ Nova Sessão de Planning</h1>
+    <p class="page-subtitle">Configure sua missão — as histórias são adicionadas dentro da sala</p>
+  </div>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    class="create-form animate-fade-in-up animate-delay-1"
+  >
+    <div class="form-section rpg-card">
+      <h2 class="form-section-title">📜 Informações da Missão</h2>
+
+      <div class="form-group">
+        <label>Nome da Sessão *</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="name"
+          placeholder="Ex: Sprint 42 - Backend API"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Descrição (opcional)</label>
+        <textarea
+          class="form-control"
+          formControlName="description"
+          rows="3"
+          placeholder="Descreva o objetivo desta sessão..."
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost btn-lg" routerLink="/dashboard">Cancelar</button>
+      <button type="submit" class="btn btn-gold btn-lg" [disabled]="form.invalid || loading()">
+        @if (!loading()) {
+          <span>⚔️ Criar Sessão</span>
+        } @else {
+          <span class="spinner"></span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

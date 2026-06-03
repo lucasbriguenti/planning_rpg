@@ -1,0 +1,78 @@
+<div class="auth-page">
+  <div class="auth-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="auth-card animate-fade-in-scale">
+    <div class="auth-header">
+      <div class="auth-logo">⚔️</div>
+      <h1 class="auth-title">Planning<span>RPG</span></h1>
+      <p class="auth-subtitle">Entre na guilda dos estimadores</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="heroi@guilda.com"
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="input-group">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button type="button" class="input-toggle" (click)="showPassword.set(!showPassword())">
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg w-full"
+        [disabled]="form.invalid || loading()"
+      >
+        @if (!loading()) {
+          <span>⚔️ Entrar na Batalha</span>
+        } @else {
+          <span class="spinner"></span>
+        }
+      </button>
+    </form>
+
+    <div class="auth-divider"><span>ou</span></div>
+
+    <button
+      class="btn btn-ghost btn-lg w-full google-btn"
+      (click)="loginWithGoogle()"
+      [disabled]="loading()"
+    >
+      <img
+        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+        alt="Google"
+        width="20"
+      />
+      Entrar com Google
+    </button>
+
+    <p class="auth-link">
+      Ainda não tem conta?
+      <a routerLink="/auth/register">Crie sua personagem →</a>
+    </p>
+  </div>
+</div>

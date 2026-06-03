@@ -1,0 +1,180 @@
+@if (!loading()) {
+  <div class="dashboard">
+    <!-- Hero Section -->
+    @if (currentUser()) {
+      <section class="hero-section animate-fade-in-up">
+        <div class="hero-content">
+          <div class="hero-avatar">
+            <div class="avatar avatar-xl">
+              {{ getClassInfo(currentUser()!.characterClass)?.icon }}
+            </div>
+            <div class="level-badge">{{ currentUser()!.level }}</div>
+          </div>
+
+          <div class="hero-info">
+            <div class="hero-greeting">Bem-vindo de volta,</div>
+            <h1 class="hero-name">{{ currentUser()!.displayName }}</h1>
+            <div class="hero-title">
+              <span
+                class="badge badge-{{
+                  currentUser()!.level >= 8
+                    ? 'legendary'
+                    : currentUser()!.level >= 5
+                      ? 'epic'
+                      : currentUser()!.level >= 3
+                        ? 'rare'
+                        : 'common'
+                }}"
+              >
+                {{ getLevelTitle(currentUser()!.level) }}
+              </span>
+              <span class="hero-class">{{ getClassInfo(currentUser()!.characterClass)?.name }}</span>
+            </div>
+
+            <div class="xp-section">
+              <div class="xp-labels">
+                <span class="xp-label">XP</span>
+                <span class="xp-values">{{ xpProgress().current }} / {{ xpProgress().required }}</span>
+              </div>
+              <div class="xp-bar">
+                <div class="xp-fill" [style.width.%]="xpProgress().percentage">
+                  <div class="xp-shine"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-stats">
+              <div class="stat">
+                <span class="stat-value">{{ currentUser()!.totalSessions }}</span>
+                <span class="stat-label">Sessões</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ currentUser()!.totalVotes }}</span>
+                <span class="stat-label">Votos</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ currentUser()!.perfectConsensus }}</span>
+                <span class="stat-label">Consensos</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">{{ unlockedAchievements().length }}</span>
+                <span class="stat-label">Conquistas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn btn-gold btn-lg" routerLink="/sessions/new">⚔️ Nova Sessão</button>
+          <button class="btn btn-ghost btn-lg" (click)="showJoinModal.set(true)">
+            🚪 Entrar com Código
+          </button>
+          <button class="btn btn-ghost btn-lg" routerLink="/leaderboard">🏆 Ranking</button>
+        </div>
+      </section>
+    }
+
+    <!-- Active Sessions -->
+    <section class="section animate-fade-in-up animate-delay-2">
+      <div class="section-title">⚔️ Sessões Ativas</div>
+
+      @if (activeSessions().length > 0) {
+        <div class="sessions-grid">
+          @for (session of activeSessions(); track session.id) {
+            <div class="session-card rpg-card" [routerLink]="['/sessions', session.id]">
+              <div class="session-status" [class]="'status-' + session.status">
+                {{
+                  session.status === 'waiting'
+                    ? '⏳ Aguardando'
+                    : session.status === 'active'
+                      ? '⚔️ Em Andamento'
+                      : '✅ Concluída'
+                }}
+              </div>
+              <h3 class="session-name">{{ session.name }}</h3>
+              @if (session.description) {
+                <p class="session-desc">{{ session.description }}</p>
+              }
+              <div class="session-meta">
+                <span>👥 {{ session.participants.length }} participante(s)</span>
+                <span>📋 {{ session.completedStories }}/{{ session.totalStories }} histórias</span>
+              </div>
+              <div class="session-code">
+                <span class="code-label">Código:</span>
+                <span class="code-value">{{ session.inviteCode }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">🏰</div>
+          <p>Nenhuma sessão ativa. Crie uma nova aventura!</p>
+          <button class="btn btn-primary" routerLink="/sessions/new">Criar Sessão</button>
+        </div>
+      }
+    </section>
+
+    <!-- Achievements -->
+    @if (currentUser()) {
+      <section class="section animate-fade-in-up animate-delay-3">
+        <div class="section-title">🏆 Conquistas Recentes</div>
+        <div class="achievements-grid">
+          @for (ach of unlockedAchievements().slice(0, 6); track ach.id) {
+            <div class="achievement-badge unlocked" [title]="ach.description">
+              <span class="ach-icon">{{ ach.icon }}</span>
+              <span class="ach-name">{{ ach.name }}</span>
+            </div>
+          }
+          @for (ach of lockedAchievements(); track ach.id) {
+            <div class="achievement-badge locked" [title]="ach.description">
+              <span class="ach-icon">🔒</span>
+              <span class="ach-name">{{ ach.name }}</span>
+            </div>
+          }
+        </div>
+        <a routerLink="/profile" class="view-all-link">Ver todas as conquistas →</a>
+      </section>
+    }
+  </div>
+} @else {
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-icon">⚔️</div>
+      <p>Carregando aventura...</p>
+    </div>
+  </div>
+}
+
+<!-- Join Modal -->
+@if (showJoinModal()) {
+  <div class="modal-overlay" (click)="showJoinModal.set(false)">
+    <div class="modal-card animate-fade-in-scale" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">🚪 Entrar em Sessão</h2>
+      <p class="modal-subtitle">Digite o código de convite da sessão</p>
+      <form [formGroup]="joinForm" (ngSubmit)="joinSession()">
+        <input
+          type="text"
+          class="form-control code-input"
+          formControlName="code"
+          placeholder="Ex: ABC123"
+          maxlength="6"
+          style="
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 1.5rem;
+            text-align: center;
+          "
+        />
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" (click)="showJoinModal.set(false)">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="joining()">
+            {{ joining() ? '...' : '⚔️ Entrar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

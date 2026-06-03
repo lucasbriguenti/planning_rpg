@@ -1,0 +1,65 @@
+@use '../../../../styles/variables' as *;
+
+.create-page { max-width: 720px; margin: 0 auto; }
+
+.page-header { margin-bottom: $spacing-xl; }
+.page-title { font-family: $font-fantasy; font-size: 1.8rem; margin: $spacing-sm 0 $spacing-xs; }
+.page-subtitle { color: $color-text-muted; font-size: 0.9rem; }
+
+.create-form { display: flex; flex-direction: column; gap: $spacing-lg; }
+
+.form-section { }
+.form-section-title { font-family: $font-fantasy; font-size: 1rem; color: $color-gold; margin-bottom: $spacing-lg; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+textarea.form-control { resize: vertical; font-family: $font-body; }
+
+.stories-list { display: flex; flex-direction: column; gap: $spacing-sm; }
+
+.story-item {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+}
+
+.story-number {
+  width: 28px;
+  height: 28px;
+  background: rgba($color-primary, 0.15);
+  border: 1px solid rgba($color-primary, 0.3);
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: $color-primary-light;
+  font-family: $font-fantasy;
+  flex-shrink: 0;
+  margin-top: 9px;
+}
+
+.story-fields { flex: 1; display: flex; flex-direction: column; gap: $spacing-xs; }
+.story-desc { font-size: 0.85rem; }
+.story-remove { margin-top: 7px; flex-shrink: 0; color: $color-text-dim; &:hover { color: $color-danger; } }
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+  padding-top: $spacing-sm;
+}
+
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #1a0a00;
+  border-radius: $radius-full;
+  animation: spin-slow 0.8s linear infinite;
+  display: inline-block;
+}

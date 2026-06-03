@@ -1,0 +1,65 @@
+// Color Palette
+$color-bg-dark:      #0d0d1a;
+$color-bg-card:      #161629;
+$color-bg-elevated:  #1e1e38;
+$color-border:       #2a2a4a;
+$color-border-glow:  #6c3fd1;
+
+$color-primary:      #8b5cf6;
+$color-primary-dark: #6c3fd1;
+$color-primary-light:#a78bfa;
+$color-gold:         #f59e0b;
+$color-gold-light:   #fcd34d;
+$color-accent:       #06b6d4;
+$color-success:      #10b981;
+$color-danger:       #ef4444;
+$color-warning:      #f59e0b;
+
+$color-text:         #e2e8f0;
+$color-text-muted:   #94a3b8;
+$color-text-dim:     #64748b;
+
+// Card Rarity Colors
+$rarity-common:     #9ca3af;
+$rarity-uncommon:   #22c55e;
+$rarity-rare:       #3b82f6;
+$rarity-epic:       #a855f7;
+$rarity-legendary:  #f59e0b;
+$rarity-special:    #06b6d4;
+
+// Typography
+$font-fantasy:       'MedievalSharp', 'Cinzel', 'Palatino Linotype', serif;
+$font-body:          'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-mono:          'Fira Code', 'Cascadia Code', monospace;
+
+// Spacing
+$spacing-xs:  4px;
+$spacing-sm:  8px;
+$spacing-md:  16px;
+$spacing-lg:  24px;
+$spacing-xl:  32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// Border Radius
+$radius-sm:   6px;
+$radius-md:   12px;
+$radius-lg:   20px;
+$radius-xl:   28px;
+$radius-full: 9999px;
+
+// Shadows
+$shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+$shadow-glow-primary: 0 0 20px rgba(139, 92, 246, 0.4);
+$shadow-glow-gold:    0 0 20px rgba(245, 158, 11, 0.5);
+
+// Transitions
+$transition-fast:   150ms ease;
+$transition-normal: 250ms ease;
+$transition-slow:   400ms ease;
+
+// Breakpoints
+$bp-sm:  576px;
+$bp-md:  768px;
+$bp-lg:  992px;
+$bp-xl:  1200px;

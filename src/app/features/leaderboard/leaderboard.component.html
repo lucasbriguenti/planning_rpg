@@ -1,0 +1,108 @@
+<div class="leaderboard-page">
+  <div class="page-header animate-fade-in-up">
+    <h1 class="page-title">🏆 Ranking dos Heróis</h1>
+    <p class="page-subtitle">Os maiores estimadores da guilda</p>
+  </div>
+
+  <!-- Podium -->
+  @if (!loading() && players().length >= 3) {
+    <div class="podium animate-fade-in-up animate-delay-1">
+      <!-- 2nd -->
+      <div class="podium-entry second">
+        <div class="podium-avatar">
+          <div class="avatar avatar-lg">{{ getClassInfo(players()[1].characterClass)?.icon }}</div>
+          <div class="podium-rank">🥈</div>
+        </div>
+        <div class="podium-name">{{ players()[1].displayName }}</div>
+        <div class="podium-xp">{{ players()[1].xp }} XP</div>
+        <div class="podium-block height-2"></div>
+      </div>
+
+      <!-- 1st -->
+      <div class="podium-entry first">
+        <div class="crown animate-float">👑</div>
+        <div class="podium-avatar">
+          <div class="avatar avatar-xl">{{ getClassInfo(players()[0].characterClass)?.icon }}</div>
+        </div>
+        <div class="podium-name">{{ players()[0].displayName }}</div>
+        <div class="podium-xp">{{ players()[0].xp }} XP</div>
+        <div class="podium-block height-1"></div>
+      </div>
+
+      <!-- 3rd -->
+      <div class="podium-entry third">
+        <div class="podium-avatar">
+          <div class="avatar avatar-lg">{{ getClassInfo(players()[2].characterClass)?.icon }}</div>
+          <div class="podium-rank">🥉</div>
+        </div>
+        <div class="podium-name">{{ players()[2].displayName }}</div>
+        <div class="podium-xp">{{ players()[2].xp }} XP</div>
+        <div class="podium-block height-3"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Full list -->
+  <div class="leaderboard-card rpg-card animate-fade-in-up animate-delay-2">
+    <div class="section-title">📜 Classificação Completa</div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div style="font-size: 2rem; animation: float 1.5s ease-in-out infinite">⚔️</div>
+        <p>Carregando ranking...</p>
+      </div>
+    }
+
+    @if (!loading()) {
+      <div class="leaderboard-list">
+        @for (player of players(); track player.uid; let i = $index) {
+          <div
+            class="leaderboard-row animate-fade-in-up animate-delay-{{ (i % 12) + 1 }}"
+            [class.current-user]="player.uid === currentUid()"
+            [class]="getRankClass(i)"
+          >
+            <div class="row-rank">
+              @if (i < 3) {
+                <span class="rank-icon">{{ getRankIcon(i) }}</span>
+              } @else {
+                <span class="rank-number">{{ i + 1 }}</span>
+              }
+            </div>
+
+            <div class="avatar avatar-md">{{ getClassInfo(player.characterClass)?.icon }}</div>
+
+            <div class="row-info">
+              <span class="player-name">
+                {{ player.displayName }}
+                @if (player.uid === currentUid()) {
+                  <span class="you-badge">Você</span>
+                }
+              </span>
+              <span class="player-title"
+                >{{ getLevelTitle(player.level) }} •
+                {{ getClassInfo(player.characterClass)?.name }}</span
+              >
+            </div>
+
+            <div class="row-stats">
+              <span class="stat-pill">Nv. {{ player.level }}</span>
+              <span class="stat-pill sessions">{{ player.totalSessions }} sessões</span>
+              <span class="stat-pill hidden-sm">{{ player.perfectConsensus }} consensos</span>
+            </div>
+
+            <div class="row-xp">
+              <span class="xp-value">{{ player.xp }}</span>
+              <span class="xp-label">XP</span>
+            </div>
+          </div>
+        }
+
+        @if (players().length === 0) {
+          <div class="empty-leaderboard">
+            <p>Nenhum herói no ranking ainda. Seja o primeiro!</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

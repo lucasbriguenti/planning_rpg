@@ -1,0 +1,51 @@
+<div class="app-wrapper">
+  <!-- Navigation -->
+  @if (!isAuthPage) {
+    <nav class="navbar">
+      <a class="navbar-brand" routerLink="/dashboard">
+        <span class="brand-icon">⚔️</span>
+        <span class="brand-name">Planning<span class="brand-rpg">RPG</span></span>
+      </a>
+
+      <button class="menu-toggle btn btn-icon btn-ghost" (click)="isMenuOpen = !isMenuOpen">
+        {{ isMenuOpen ? '✕' : '☰' }}
+      </button>
+
+      <div class="navbar-links" [class.open]="isMenuOpen">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">🏰 Início</a>
+        <a routerLink="/sessions/new" class="nav-link">⚔️ Nova Sessão</a>
+        <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">🏆 Ranking</a>
+      </div>
+
+      @if (currentUser) {
+        <div class="navbar-user">
+          <div class="user-xp">
+            <span class="xp-level">Nv.{{ currentUser.level }}</span>
+            <div class="xp-mini-bar">
+              <div class="xp-fill" [style.width.%]="xpPercentage"></div>
+            </div>
+          </div>
+          <a routerLink="/profile" class="avatar avatar-sm user-avatar">
+            {{ charIcon }}
+          </a>
+          <button class="btn btn-ghost btn-sm" (click)="logout()">Sair</button>
+        </div>
+      }
+    </nav>
+  }
+
+  <!-- Main content -->
+  <main class="main-content" [class.auth-layout]="isAuthPage">
+    <router-outlet />
+  </main>
+
+  <!-- Toast notifications -->
+  <div class="toast-container">
+    @for (n of notifications; track n.id) {
+      <div class="toast toast-{{ n.type }} animate-fade-in-up" (click)="dismissNotification(n.id)">
+        <div class="toast-title">{{ n.title }}</div>
+        <div class="toast-message">{{ n.message }}</div>
+      </div>
+    }
+  </div>
+</div>

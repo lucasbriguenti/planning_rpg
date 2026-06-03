@@ -1,0 +1,155 @@
+@use '../../../styles/variables' as *;
+
+.leaderboard-page { display: flex; flex-direction: column; gap: $spacing-xl; max-width: 800px; margin: 0 auto; }
+
+.page-header { text-align: center; }
+.page-title { font-family: $font-fantasy; font-size: 2rem; margin-bottom: $spacing-xs; }
+.page-subtitle { color: $color-text-muted; font-size: 0.9rem; }
+
+// Podium
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: $spacing-md;
+  padding: $spacing-xl 0;
+}
+
+.podium-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  position: relative;
+}
+
+.podium-avatar { position: relative; }
+.podium-rank {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 1.1rem;
+}
+
+.podium-name { font-family: $font-fantasy; font-size: 0.85rem; color: $color-text; max-width: 100px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium-xp { font-size: 0.75rem; color: $color-gold; }
+
+.crown { font-size: 1.5rem; margin-bottom: -4px; }
+
+.podium-block {
+  width: 90px;
+  border-radius: $radius-sm $radius-sm 0 0;
+  &.height-1 { height: 90px; background: linear-gradient(to top, #a67800, $color-gold); }
+  &.height-2 { height: 65px; background: linear-gradient(to top, #666, #aaa); }
+  &.height-3 { height: 48px; background: linear-gradient(to top, #a86000, #cd7f32); }
+}
+
+.first  .avatar { border-color: $color-gold;  box-shadow: $shadow-glow-gold; width: 80px; height: 80px; font-size: 2rem; }
+.second .avatar { border-color: #aaaaaa; width: 64px; height: 64px; font-size: 1.6rem; }
+.third  .avatar { border-color: #cd7f32; width: 64px; height: 64px; font-size: 1.6rem; }
+
+// List
+.leaderboard-card { padding: $spacing-xl; }
+
+.leaderboard-list { display: flex; flex-direction: column; gap: $spacing-xs; }
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  transition: background $transition-fast;
+  border: 1px solid transparent;
+
+  &:hover { background: rgba($color-primary, 0.05); }
+
+  &.current-user {
+    background: rgba($color-primary, 0.08);
+    border-color: rgba($color-primary, 0.2);
+  }
+
+  &.rank-gold   { background: rgba($color-gold, 0.07); border-color: rgba($color-gold, 0.2); }
+  &.rank-silver { background: rgba(#aaaaaa, 0.05); }
+  &.rank-bronze { background: rgba(#cd7f32, 0.05); }
+}
+
+.row-rank {
+  width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+  .rank-icon   { font-size: 1.3rem; }
+  .rank-number { font-family: $font-fantasy; font-size: 0.9rem; color: $color-text-muted; }
+}
+
+.row-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.player-name {
+  font-family: $font-fantasy;
+  font-size: 0.95rem;
+  color: $color-text;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.you-badge {
+  font-size: 0.65rem;
+  background: rgba($color-primary, 0.2);
+  color: $color-primary-light;
+  padding: 1px 6px;
+  border-radius: $radius-full;
+  font-family: $font-body;
+}
+
+.player-title { font-size: 0.75rem; color: $color-text-muted; }
+
+.row-stats {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+}
+
+.stat-pill {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  background: rgba($color-border, 0.5);
+  color: $color-text-muted;
+  white-space: nowrap;
+}
+
+.row-xp {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+  .xp-value { font-family: $font-fantasy; font-size: 1rem; color: $color-gold; }
+  .xp-label { font-size: 0.65rem; color: $color-text-dim; text-transform: uppercase; }
+}
+
+.loading-state {
+  text-align: center;
+  padding: $spacing-2xl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  p { color: $color-text-muted; }
+}
+
+.empty-leaderboard { text-align: center; padding: $spacing-2xl; color: $color-text-muted; }
+
+@media (max-width: $bp-sm) {
+  .podium { gap: $spacing-sm; }
+  .podium-block { width: 70px; }
+  .hidden-sm { display: none; }
+  .row-stats .sessions { display: none; }
+}

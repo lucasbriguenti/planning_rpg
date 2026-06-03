@@ -1,0 +1,140 @@
+@if (!loading() && currentUser()) {
+  <div class="profile-page">
+    <!-- Profile Hero -->
+    <section class="profile-hero rpg-card animate-fade-in-up">
+      <div class="hero-top">
+        <div class="hero-avatar-wrap">
+          <div class="avatar avatar-xl animate-float">
+            {{ getClassInfo(currentUser()!.characterClass)?.icon }}
+          </div>
+          <div class="level-ring">{{ currentUser()!.level }}</div>
+        </div>
+
+        <div class="hero-details">
+          <h1 class="profile-name">{{ currentUser()!.displayName }}</h1>
+          <div class="profile-badges">
+            <span
+              class="badge badge-{{
+                currentUser()!.level >= 8
+                  ? 'legendary'
+                  : currentUser()!.level >= 5
+                    ? 'epic'
+                    : currentUser()!.level >= 3
+                      ? 'rare'
+                      : 'common'
+              }}"
+            >
+              {{ getLevelTitle(currentUser()!.level) }}
+            </span>
+            <span class="class-tag"
+              >{{ getClassInfo(currentUser()!.characterClass)?.icon }}
+              {{ getClassInfo(currentUser()!.characterClass)?.name }}</span
+            >
+          </div>
+          <p class="profile-email">{{ currentUser()!.email }}</p>
+
+          <div class="xp-block">
+            <div class="xp-header">
+              <span>Nível {{ currentUser()!.level }} → {{ currentUser()!.level + 1 }}</span>
+              <span>{{ xpProgress().current }} / {{ xpProgress().required }} XP</span>
+            </div>
+            <div class="xp-bar">
+              <div class="xp-fill" [style.width.%]="xpProgress().percentage">
+                <div class="xp-shine"></div>
+              </div>
+            </div>
+            <div class="total-xp">Total: {{ currentUser()!.xp }} XP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="profile-stats">
+        <div class="stat-card">
+          <span class="stat-icon">🏰</span>
+          <span class="stat-value">{{ currentUser()!.totalSessions }}</span>
+          <span class="stat-label">Sessões</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🗳️</span>
+          <span class="stat-value">{{ currentUser()!.totalVotes }}</span>
+          <span class="stat-label">Votos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🎯</span>
+          <span class="stat-value">{{ currentUser()!.perfectConsensus }}</span>
+          <span class="stat-label">Consensos</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🏆</span>
+          <span class="stat-value">{{ currentUser()!.achievements.length }}</span>
+          <span class="stat-label">Conquistas</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Change Class -->
+    <section class="section animate-fade-in-up animate-delay-1">
+      <div class="section-title">⚔️ Alterar Classe</div>
+      <div class="class-grid">
+        @for (cls of classes; track cls.key) {
+          <button
+            class="class-card"
+            [class.active]="currentUser()!.characterClass === cls.key"
+            [style.--class-color]="cls.color"
+            (click)="changeClass(cls.key)"
+          >
+            <span class="cls-icon">{{ cls.icon }}</span>
+            <span class="cls-name">{{ cls.name }}</span>
+            <span class="cls-desc">{{ cls.description }}</span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Achievements -->
+    <section class="section animate-fade-in-up animate-delay-2">
+      <div class="section-title">🏆 Conquistas</div>
+      <div class="achievements-grid">
+        @for (ach of allAchievements; track ach.id) {
+          <div
+            class="achievement-card"
+            [class.unlocked]="isAchievementUnlocked(ach.id)"
+            [class.locked]="!isAchievementUnlocked(ach.id)"
+            [class]="
+              'rarity-' + ach.rarity + (isAchievementUnlocked(ach.id) ? ' unlocked' : ' locked')
+            "
+          >
+            <div class="ach-icon-wrap">
+              <span class="ach-icon">{{ isAchievementUnlocked(ach.id) ? ach.icon : '🔒' }}</span>
+            </div>
+            <div class="ach-info">
+              <div class="ach-name">{{ ach.name }}</div>
+              <div class="ach-desc">{{ ach.description }}</div>
+              @if (isAchievementUnlocked(ach.id)) {
+                <div class="ach-reward">+{{ ach.xpReward }} XP</div>
+              }
+            </div>
+            <span class="badge badge-{{ ach.rarity }}">{{ ach.rarity }}</span>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+} @else {
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div
+        style="
+          font-size: 3rem;
+          animation: float 1.5s ease-in-out infinite;
+          display: block;
+          margin-bottom: 16px;
+        "
+      >
+        ⚔️
+      </div>
+      <p style="color: #94a3b8">Carregando perfil...</p>
+    </div>
+  </div>
+}

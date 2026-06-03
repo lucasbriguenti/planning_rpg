@@ -1,0 +1,55 @@
+name: Deploy Firebase
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create environment files from secrets
+        env:
+          ENV_LOCAL_TS: ${{ secrets.ENV_LOCAL_TS }}
+          ENV_LOCAL_PROD_TS: ${{ secrets.ENV_LOCAL_PROD_TS }}
+        run: |
+          if [ -z "$ENV_LOCAL_TS" ] || [ -z "$ENV_LOCAL_PROD_TS" ]; then
+            echo "Missing ENV_LOCAL_TS or ENV_LOCAL_PROD_TS secrets"
+            exit 1
+          fi
+
+          mkdir -p src/environments
+          printf '%s' "$ENV_LOCAL_TS" > src/environments/environment.local.ts
+          printf '%s' "$ENV_LOCAL_PROD_TS" > src/environments/environment.local.prod.ts
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy Hosting and Firestore
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          if [ -z "$FIREBASE_TOKEN" ] || [ -z "$FIREBASE_PROJECT_ID" ]; then
+            echo "Missing FIREBASE_TOKEN or FIREBASE_PROJECT_ID secrets"
+            exit 1
+          fi
+
+          npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN" --only hosting,firestore

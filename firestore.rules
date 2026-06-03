@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users: only the owner can write, anyone authenticated can read
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Sessions: authenticated users can read
+    match /sessions/{sessionId} {
+      allow read: if request.auth != null;
+
+      // Creator must set themselves as host
+      allow create: if request.auth != null && request.resource.data.hostId == request.auth.uid;
+
+      // Host can update anything; others can only join (cannot change hostId, status, name or invite Code)
+      allow update: if request.auth != null && (
+        resource.data.hostId == request.auth.uid ||
+        (
+          request.resource.data.hostId    == resource.data.hostId &&
+          request.resource.data.status    == resource.data.status &&
+          request.resource.data.name      == resource.data.name   &&
+          request.resource.data.inviteCode == resource.data.inviteCode
+        )
+      );
+
+      // Stories: only the session host can write
+      match /stories/{storyId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null &&
+          get(/databases/$(database)/documents/sessions/$(sessionId)).data.hostId == request.auth.uid;
+
+        // Votes: each user writes only their own vote
+        match /votes/{voteId} {
+          allow read: if request.auth != null;
+          allow write: if request.auth != null && request.auth.uid == voteId;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+@use '../styles/variables' as *;
+
+.app-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: 0 $spacing-xl;
+  height: 64px;
+  background: rgba($color-bg-card, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid $color-border;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  .brand-icon  { font-size: 1.4rem; }
+  .brand-name  { font-family: $font-fantasy; font-size: 1.25rem; color: $color-text; font-weight: 700; }
+  .brand-rpg   { color: $color-gold; }
+}
+
+.menu-toggle { display: none; margin-left: auto; font-size: 1.1rem; }
+
+.navbar-links { display: flex; align-items: center; gap: $spacing-xs; flex: 1; }
+
+.nav-link {
+  padding: 6px 14px;
+  border-radius: $radius-md;
+  color: $color-text-muted;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all $transition-fast;
+  text-decoration: none;
+  &:hover { color: $color-text; background: rgba($color-primary, 0.08); }
+  &.active { color: $color-primary-light; background: rgba($color-primary, 0.12); }
+}
+
+.navbar-user { display: flex; align-items: center; gap: $spacing-sm; margin-left: auto; }
+
+.user-xp {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  .xp-level { font-size: 0.7rem; color: $color-gold; font-family: $font-fantasy; font-weight: 600; }
+  .xp-mini-bar {
+    width: 60px; height: 4px; background: $color-border; border-radius: $radius-full; overflow: hidden;
+    .xp-fill { height: 100%; background: linear-gradient(90deg, $color-primary, $color-gold); border-radius: $radius-full; transition: width 0.6s ease; }
+  }
+}
+
+.main-content {
+  flex: 1;
+  padding: $spacing-xl;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  &.auth-layout { max-width: 100%; padding: 0; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 64px); }
+}
+
+@media (max-width: $bp-md) {
+  .navbar { padding: 0 $spacing-md; gap: $spacing-md; }
+  .menu-toggle { display: flex; }
+  .navbar-links {
+    display: none;
+    position: absolute;
+    top: 64px; left: 0; right: 0;
+    flex-direction: column;
+    background: $color-bg-card;
+    border-bottom: 1px solid $color-border;
+    padding: $spacing-md;
+    gap: $spacing-xs;
+    &.open { display: flex; }
+  }
+  .main-content { padding: $spacing-md; }
+}
