@@ -63,3 +63,9 @@ textarea.form-control { resize: vertical; font-family: $font-body; }
   animation: spin-slow 0.8s linear infinite;
   display: inline-block;
 }
+
+@media (max-width: $bp-md) {
+  .page-title { font-size: 1.4rem; }
+  .form-actions { flex-direction: column-reverse; }
+  .form-actions .btn { width: 100%; }
+}

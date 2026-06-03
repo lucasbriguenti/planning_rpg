@@ -147,9 +147,14 @@
 
 .empty-leaderboard { text-align: center; padding: $spacing-2xl; color: $color-text-muted; }
 
+@media (max-width: $bp-md) {
+  .page-title { font-size: 1.5rem; }
+}
+
 @media (max-width: $bp-sm) {
   .podium { gap: $spacing-sm; }
   .podium-block { width: 70px; }
   .hidden-sm { display: none; }
-  .row-stats .sessions { display: none; }
+  .row-stats { display: none; }
+  .leaderboard-row { gap: $spacing-sm; padding: $spacing-sm; }
 }

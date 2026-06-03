@@ -12,9 +12,14 @@
       </button>
 
       <div class="navbar-links" [class.open]="isMenuOpen">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">🏰 Início</a>
-        <a routerLink="/sessions/new" class="nav-link">⚔️ Nova Sessão</a>
-        <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">🏆 Ranking</a>
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" (click)="isMenuOpen = false">🏰 Início</a>
+        <a routerLink="/sessions/new" class="nav-link" (click)="isMenuOpen = false">⚔️ Nova Sessão</a>
+        <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link" (click)="isMenuOpen = false">🏆 Ranking</a>
+        @if (currentUser) {
+          <hr class="mobile-nav-divider">
+          <a routerLink="/profile" class="nav-link mobile-nav-btn" (click)="isMenuOpen = false">👤 Meu Perfil</a>
+          <button class="btn btn-ghost btn-sm mobile-nav-btn" (click)="logout(); isMenuOpen = false">🚪 Sair</button>
+        }
       </div>
 
       @if (currentUser) {
@@ -28,7 +33,7 @@
           <a routerLink="/profile" class="avatar avatar-sm user-avatar">
             {{ charIcon }}
           </a>
-          <button class="btn btn-ghost btn-sm" (click)="logout()">Sair</button>
+          <button class="btn btn-ghost btn-sm navbar-logout-desktop" (click)="logout()">Sair</button>
         </div>
       }
     </nav>

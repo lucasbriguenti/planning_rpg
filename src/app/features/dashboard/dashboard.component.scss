@@ -246,7 +246,13 @@
 }
 
 @media (max-width: $bp-md) {
+  .hero-section { padding: $spacing-lg; }
   .hero-content { flex-direction: column; align-items: center; text-align: center; }
+  .hero-name { font-size: 1.5rem; }
   .hero-stats { justify-content: center; }
   .hero-actions { justify-content: center; }
+  .hero-actions .btn { flex: 1; min-width: 140px; }
+  .modal-card { padding: $spacing-lg; }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions .btn { width: 100%; }
 }

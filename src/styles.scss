@@ -192,6 +192,8 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: $bp-md) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .rpg-card { padding: $spacing-md; }
+  .form-control { font-size: 1rem; }
 }
 @media (max-width: $bp-lg) {
   .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
@@ -208,6 +210,15 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
   max-width: 360px;
   width: calc(100vw - #{$spacing-xl});
+
+  @media (max-width: $bp-md) {
+    top: auto;
+    bottom: $spacing-lg;
+    left: $spacing-md;
+    right: $spacing-md;
+    max-width: none;
+    width: auto;
+  }
 }
 
 .toast {

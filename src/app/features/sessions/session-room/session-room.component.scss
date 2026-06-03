@@ -454,6 +454,24 @@
   .room-layout { grid-template-columns: 1fr; }
   .room-sidebar { order: 2; }
   .room-main { order: 1; }
+
+  .session-header { flex-direction: column; gap: $spacing-sm; }
+  .header-left { flex-wrap: wrap; }
+  .session-title { font-size: 1.3rem; }
+  .header-actions { display: flex; flex-wrap: wrap; }
+
   .cards-grid { justify-content: center; }
-  .poker-card { width: 54px; height: 76px; .card-suit { font-size: 1.3rem; } }
+  .poker-card {
+    width: 60px;
+    height: 86px;
+    .card-suit { font-size: 1.4rem; }
+  }
+
+  .results-stats { flex-wrap: wrap; justify-content: center; gap: $spacing-md; }
+
+  .waiting-area { padding: $spacing-xl; }
+  .big-code { font-size: 1.8rem; letter-spacing: 0.2em; padding: $spacing-xs $spacing-lg; }
+
+  .finalize-options { gap: $spacing-xs; }
+  .finalize-options .btn { flex: 1; min-width: 48px; }
 }

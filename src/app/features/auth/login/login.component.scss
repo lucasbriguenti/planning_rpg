@@ -126,3 +126,8 @@
   animation: spin-slow 0.8s linear infinite;
   display: inline-block;
 }
+
+@media (max-width: $bp-sm) {
+  .auth-card { padding: $spacing-lg $spacing-md; }
+  .auth-title { font-size: 1.6rem; }
+}
