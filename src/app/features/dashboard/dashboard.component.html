@@ -166,11 +166,20 @@
             text-align: center;
           "
         />
+        @if (joinForm.get('code')?.invalid && joinForm.get('code')?.touched) {
+          <p class="form-error" style="color: var(--color-error, #e74c3c); font-size: 0.85rem; margin-top: 0.4rem; text-align: center;">
+            @if (joinForm.get('code')?.hasError('required')) {
+              Digite o código de convite.
+            } @else {
+              O código deve ter exatamente 6 caracteres.
+            }
+          </p>
+        }
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" (click)="showJoinModal.set(false)">
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" [disabled]="joining()">
+          <button type="submit" class="btn btn-primary" [disabled]="joining() || joinForm.invalid">
             {{ joining() ? '...' : '⚔️ Entrar' }}
           </button>
         </div>

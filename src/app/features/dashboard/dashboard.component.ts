@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -51,7 +51,9 @@ export class DashboardComponent implements OnInit {
     return this.allAchievements.filter(a => !unlockedIds.has(a.id)).slice(0, 3);
   });
 
-  joinForm = this.fb.group({ code: [''] });
+  joinForm = this.fb.group({
+    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+  });
 
   getClassInfo(cls: string) {
     return (CHARACTER_CLASSES as Record<string, (typeof CHARACTER_CLASSES)[keyof typeof CHARACTER_CLASSES] | undefined>)[cls];
@@ -100,20 +102,22 @@ export class DashboardComponent implements OnInit {
     const code = this.joinForm.value.code?.trim();
     if (!code || !this.currentUser()) return;
     this.joining.set(true);
-    this.sessionService.findSessionByCode(code).then(session => {
-      if (!session) {
-        this.notify.error('Sessão não encontrada', 'Verifique o código e tente novamente.');
+    this.sessionService.findSessionByCode(code)
+      .then(session => {
+        if (!session) {
+          this.notify.error('Sessão não encontrada', 'Verifique o código e tente novamente.');
+          this.joining.set(false);
+          return;
+        }
+        return this.sessionService.joinSession(session.id, this.currentUser()!).then(() => {
+          this.router.navigate(['/sessions', session.id]);
+          this.joining.set(false);
+          this.showJoinModal.set(false);
+        });
+      })
+      .catch(() => {
+        this.notify.error('Erro', 'Não foi possível entrar na sessão.');
         this.joining.set(false);
-        return;
-      }
-      this.sessionService.joinSession(session.id, this.currentUser()!).then(() => {
-        this.router.navigate(['/sessions', session.id]);
-        this.joining.set(false);
-        this.showJoinModal.set(false);
       });
-    }).catch(() => {
-      this.notify.error('Erro', 'Não foi possível entrar na sessão.');
-      this.joining.set(false);
-    });
   }
 }
