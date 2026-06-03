@@ -190,7 +190,7 @@
                   <div class="results-stats">
                     <div class="result-stat">
                       <span class="result-value">{{ voteResult()!.average | number: '1.1-1' }}</span>
-                      <span class="result-label">Média</span>
+                      <span class="result-label">{{ voteResult()!.isWeighted ? 'Média Ponderada' : 'Média' }}</span>
                     </div>
                     <div class="result-stat">
                       <span class="result-value">{{ voteResult()!.min }}</span>
@@ -221,6 +221,11 @@
                       <div class="vote-card-revealed" [class]="'rarity-' + cardRarity[vote.value]">
                         <div class="vote-card-value">{{ vote.value }}</div>
                         <div class="vote-card-user">{{ vote.userName }}</div>
+                        @if (currentStory()?.category) {
+                          <div class="vote-card-weight">
+                            ×{{ getVoteWeight(vote.characterClass, currentStory()!.category) | number: '1.1-1' }}
+                          </div>
+                        }
                       </div>
                     }
                   </div>

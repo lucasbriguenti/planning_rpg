@@ -278,8 +278,18 @@
   &.rarity-legendary { border-color: $rarity-legendary; background: rgba($rarity-legendary, 0.08); box-shadow: 0 0 12px rgba($rarity-legendary, 0.3); }
   &.rarity-special   { border-color: $rarity-special; background: rgba($rarity-special, 0.08); }
 
-  .vote-card-value { font-family: $font-fantasy; font-size: 1.4rem; line-height: 1; }
-  .vote-card-user  { font-size: 0.65rem; color: $color-text-muted; text-align: center; }
+  .vote-card-value  { font-family: $font-fantasy; font-size: 1.4rem; line-height: 1; }
+  .vote-card-user   { font-size: 0.65rem; color: $color-text-muted; text-align: center; }
+  .vote-card-weight {
+    font-size: 0.6rem;
+    font-weight: 700;
+    margin-top: 2px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.15);
+    color: $color-accent;
+    letter-spacing: 0.03em;
+  }
 }
 
 @for $i from 1 through 12 {

@@ -11,7 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { UserProfile, CHARACTER_CLASSES } from '../../../core/models/user.model';
 import { Session } from '../../../core/models/session.model';
 import { Story, StoryCategory, STORY_CATEGORIES, PLANNING_CARDS, CARD_RARITY, CARD_SUIT } from '../../../core/models/story.model';
-import { Vote, calculateVoteResult, VoteResult } from '../../../core/models/vote.model';
+import { Vote, calculateVoteResult, VoteResult, getVoteWeight } from '../../../core/models/vote.model';
 
 @Component({
   selector: 'app-session-room',
@@ -57,7 +57,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
       const count   = this.participantCount();
 
       if (story?.status === 'revealed' && votes.length > 0) {
-        this.voteResult.set(calculateVoteResult(votes));
+        this.voteResult.set(calculateVoteResult(votes, story.category));
         return;
       }
 
@@ -72,6 +72,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
 
   readonly cards = PLANNING_CARDS;
   readonly cardRarity = CARD_RARITY;
+  readonly getVoteWeight = getVoteWeight;
 
   getCardSuit(card: number | string): string {
     return CARD_SUIT[this.cardRarity[card]] ?? '♦';
@@ -81,6 +82,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
 
   private subs = new Subscription();
   private voteSub?: Subscription;
+  private currentWatchedStoryId: string | null = null;
 
   getClassInfo(cls: string) { return (CHARACTER_CLASSES as Record<string, (typeof CHARACTER_CLASSES)[keyof typeof CHARACTER_CLASSES] | undefined>)[cls]; }
   getParticipantVote(uid: string): Vote | undefined { return this.votes().find(v => v.userId === uid); }
@@ -99,6 +101,17 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
       this.sessionService.getSession(sessionId).subscribe(session => {
         this.session.set(session ?? null);
         this.loading.set(false);
+
+        const storyId = session?.currentStoryId ?? null;
+        if (storyId && storyId !== this.currentWatchedStoryId) {
+          this.watchVotes(storyId);
+        } else if (!storyId && this.currentWatchedStoryId) {
+          this.currentWatchedStoryId = null;
+          this.voteSub?.unsubscribe();
+          this.votes.set([]);
+          this.voteResult.set(null);
+          this.selectedCard.set(null);
+        }
       })
     );
 
@@ -115,6 +128,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   }
 
   watchVotes(storyId: string): void {
+    this.currentWatchedStoryId = storyId;
     this.voteSub?.unsubscribe();
     this.selectedCard.set(null);
     this.voteResult.set(null);
@@ -126,7 +140,6 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   async startVoting(storyId: string): Promise<void> {
     if (!this.isHost()) return;
     await this.sessionService.startVoting(this.session()!.id, storyId);
-    this.watchVotes(storyId);
     this.notify.info('Votação iniciada!', 'Os participantes podem votar agora.');
   }
 
@@ -151,7 +164,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     await this.sessionService.revealVotes(this.session()!.id, story.id);
     this.revealAnimation.set(true);
     setTimeout(() => this.revealAnimation.set(false), 1500);
-    const result = calculateVoteResult(this.votes());
+    const result = calculateVoteResult(this.votes(), this.currentStory()?.category);
     this.voteResult.set(result);
     const user = this.currentUser();
     if (result.consensus && user) {
