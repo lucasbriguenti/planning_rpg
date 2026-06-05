@@ -48,6 +48,10 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   readonly azureUsNumber = signal('');
   readonly loadingUs = signal(false);
 
+  readonly viewingCompletedStory = signal<Story | null>(null);
+  readonly viewingVotes = signal<Vote[]>([]);
+  readonly viewingVoteResult = signal<Omit<VoteResult, 'storyId'> | null>(null);
+
   readonly isHost = computed(() => this.session()?.hostId === this.currentUser()?.uid);
   readonly currentStory = computed(() => this.stories().find(s => s.id === this.session()?.currentStoryId));
   readonly pendingStories = computed(() => this.stories().filter(s => s.status === 'pending'));
@@ -89,6 +93,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
 
   private subs = new Subscription();
   private voteSub?: Subscription;
+  private viewingSub?: Subscription;
   private currentWatchedStoryId: string | null = null;
 
   getClassInfo(cls: string) { return (CHARACTER_CLASSES as Record<string, (typeof CHARACTER_CLASSES)[keyof typeof CHARACTER_CLASSES] | undefined>)[cls]; }
@@ -133,6 +138,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subs.unsubscribe();
     this.voteSub?.unsubscribe();
+    this.viewingSub?.unsubscribe();
   }
 
   watchVotes(storyId: string): void {
@@ -143,6 +149,39 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     this.voteSub = this.sessionService.getVotes(this.session()!.id, storyId).subscribe(votes => {
       this.votes.set(votes);
     });
+  }
+
+  selectStory(story: Story): void {
+    if (story.id === this.session()?.currentStoryId) return;
+
+    if (this.isHost()) {
+      void this.startVoting(story.id);
+      return;
+    }
+
+    // participante: toggle view dos votos anteriores
+    if (this.viewingCompletedStory()?.id === story.id) {
+      this.closeCompletedView();
+      return;
+    }
+
+    this.viewingCompletedStory.set(story);
+    this.viewingSub?.unsubscribe();
+    this.viewingSub = this.sessionService
+      .getVotes(this.session()!.id, story.id)
+      .subscribe(votes => {
+        this.viewingVotes.set(votes);
+        if (votes.length > 0) {
+          this.viewingVoteResult.set(calculateVoteResult(votes, story.category));
+        }
+      });
+  }
+
+  closeCompletedView(): void {
+    this.viewingCompletedStory.set(null);
+    this.viewingVotes.set([]);
+    this.viewingVoteResult.set(null);
+    this.viewingSub?.unsubscribe();
   }
 
   async startVoting(storyId: string): Promise<void> {
@@ -201,9 +240,22 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
 
     this.loadingUs.set(true);
     try {
-      const item = await this.azureService.getWorkItem(cfg.organization, cfg.project, cfg.pat, id);
-      await this.sessionService.addStory(session.id, `[US#${id}] ${item.title}`, item.description);
-      this.notify.success('História importada!', `US #${id} adicionada à sessão.`);
+      const tasks = await this.azureService.getChildTasks(cfg.organization, cfg.project, cfg.pat, id);
+
+      if (tasks.length === 0) {
+        this.notify.info('Nenhuma task encontrada', `US #${id} não possui atividades filhas.`);
+        return;
+      }
+
+      await Promise.all(
+        tasks.map(task => {
+          const title = `${task.id} - ${task.title}`;
+          const category = this.detectCategory(task.title);
+          return this.sessionService.addStory(session.id, title, undefined, category);
+        })
+      );
+
+      this.notify.success('Tasks importadas!', `${tasks.length} atividade(s) da US #${id} adicionadas.`);
       this.showAzureModal.set(false);
       this.azureUsNumber.set('');
     } catch (err: unknown) {
@@ -223,6 +275,25 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     this.showAddStory.set(false);
   }
 
+  async deleteAllStories(): Promise<void> {
+    const session = this.session();
+    if (!this.isHost() || !session || this.stories().length === 0) return;
+    await this.sessionService.deleteAllStories(session.id);
+    this.closeCompletedView();
+    this.votes.set([]);
+    this.voteResult.set(null);
+    this.selectedCard.set(null);
+  }
+
+  async deleteStory(story: Story, event: MouseEvent): Promise<void> {
+    event.stopPropagation();
+    const session = this.session();
+    if (!this.isHost() || !session) return;
+    if (story.id === session.currentStoryId) return;
+    await this.sessionService.deleteStory(session.id, story.id);
+    if (this.viewingCompletedStory()?.id === story.id) this.closeCompletedView();
+  }
+
   async completeSession(): Promise<void> {
     const session = this.session();
     if (!this.isHost() || !session) return;
@@ -231,10 +302,26 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard']);
   }
 
+  private detectCategory(title: string): StoryCategory | undefined {
+    const t = title.trimStart();
+    if (/^\[?back\b/i.test(t)) return 'back';
+    if (/^\[?front\b/i.test(t)) return 'front';
+    return undefined;
+  }
+
   getDistributionEntries(): { value: string | number; count: number; percentage: number }[] {
-    const result = this.voteResult();
+    return this.buildDistribution(this.voteResult(), this.votes().length);
+  }
+
+  getViewingDistributionEntries(): { value: string | number; count: number; percentage: number }[] {
+    return this.buildDistribution(this.viewingVoteResult(), this.viewingVotes().length);
+  }
+
+  private buildDistribution(
+    result: Omit<VoteResult, 'storyId'> | null,
+    total: number,
+  ): { value: string | number; count: number; percentage: number }[] {
     if (!result) return [];
-    const total = this.votes().length;
     return Object.entries(result.distribution)
       .map(([v, c]) => ({ value: isNaN(Number(v)) ? v : Number(v), count: c, percentage: Math.round((c / total) * 100) }))
       .sort((a, b) => (typeof a.value === 'number' ? a.value : 999) - (typeof b.value === 'number' ? b.value : 999));

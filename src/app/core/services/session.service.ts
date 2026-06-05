@@ -154,6 +154,33 @@ export class SessionService {
     await updateDoc(sessRef, { completedStories: (session.completedStories ?? 0) + 1, currentStoryId: null, updatedAt: new Date() });
   }
 
+  async deleteAllStories(sessionId: string): Promise<void> {
+    const storiesRef = collection(this.db, 'sessions', sessionId, 'stories');
+    const stories = await getDocs(storiesRef);
+    await Promise.all(
+      stories.docs.map(async storyDoc => {
+        const votesRef = collection(this.db, 'sessions', sessionId, 'stories', storyDoc.id, 'votes');
+        const votes = await getDocs(votesRef);
+        await Promise.all(votes.docs.map(v => deleteDoc(v.ref)));
+        await deleteDoc(storyDoc.ref);
+      })
+    );
+    await updateDoc(doc(this.db, 'sessions', sessionId), {
+      currentStoryId: null,
+      totalStories: 0,
+      completedStories: 0,
+      updatedAt: new Date(),
+    });
+  }
+
+  async deleteStory(sessionId: string, storyId: string): Promise<void> {
+    const storyRef = doc(this.db, 'sessions', sessionId, 'stories', storyId);
+    const votesRef = collection(this.db, 'sessions', sessionId, 'stories', storyId, 'votes');
+    const votes = await getDocs(votesRef);
+    await Promise.all(votes.docs.map(v => deleteDoc(v.ref)));
+    await deleteDoc(storyRef);
+  }
+
   async completeSession(sessionId: string): Promise<void> {
     await updateDoc(doc(this.db, 'sessions', sessionId), { status: 'completed', updatedAt: new Date() });
   }

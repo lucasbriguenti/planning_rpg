@@ -75,7 +75,14 @@
 
         <!-- Stories List -->
         <div class="rpg-card sidebar-card">
-          <h3 class="sidebar-title">📋 Histórias</h3>
+          <div class="sidebar-title-row">
+            <h3 class="sidebar-title">📋 Histórias</h3>
+            @if (isHost() && stories().length > 0) {
+              <button class="btn-delete-all" (click)="deleteAllStories()" title="Excluir todas as histórias">
+                🗑️ Limpar
+              </button>
+            }
+          </div>
 
           <!-- Add Story Form -->
           @if (showAddStory() && isHost()) {
@@ -114,7 +121,8 @@
                 class="story-item"
                 [class.active]="story.id === session()!.currentStoryId"
                 [class.completed]="story.status === 'completed'"
-                (click)="story.status === 'pending' && isHost() ? startVoting(story.id) : null"
+                [class.viewing]="story.id === viewingCompletedStory()?.id"
+                (click)="selectStory(story)"
               >
                 <div class="story-status-icon">
                   {{
@@ -138,8 +146,18 @@
                     }
                   </div>
                 </div>
-                @if (story.status === 'pending' && isHost()) {
+                @if (isHost() && story.id !== session()!.currentStoryId) {
                   <span class="start-hint">Clique para votar</span>
+                }
+                @if (!isHost() && story.status !== 'pending' && story.id !== session()!.currentStoryId) {
+                  <span class="start-hint">Clique para ver</span>
+                }
+                @if (isHost() && story.id !== session()!.currentStoryId) {
+                  <button
+                    class="story-delete-btn"
+                    (click)="deleteStory(story, $event)"
+                    title="Excluir história"
+                  >✕</button>
                 }
               </div>
             }
@@ -300,6 +318,77 @@
               </div>
             }
           </div>
+        } @else if (viewingCompletedStory()) {
+          <!-- Viewing completed story -->
+          <div>
+            <div class="voting-story-card rpg-card animate-fade-in-up">
+              <div class="voting-story-header">
+                <div class="voting-badge viewing-badge">📋 Revisando</div>
+                <button class="btn btn-ghost btn-sm" (click)="closeCompletedView()">✕ Fechar</button>
+              </div>
+              <h2 class="voting-story-title">{{ viewingCompletedStory()!.title }}</h2>
+              @if (viewingCompletedStory()!.description) {
+                <p class="voting-story-desc">{{ viewingCompletedStory()!.description }}</p>
+              }
+              @if (viewingCompletedStory()!.finalEstimate !== undefined) {
+                <div class="final-estimate-display">
+                  Estimativa final: <strong>{{ viewingCompletedStory()!.finalEstimate }} pts</strong>
+                </div>
+              }
+            </div>
+
+            @if (viewingVoteResult() && viewingVotes().length > 0) {
+              <div class="results-area animate-fade-in-scale">
+                <div class="results-card rpg-card" [class.consensus]="viewingVoteResult()!.consensus">
+                  <div class="results-header">
+                    <h3>{{ viewingVoteResult()!.consensus ? '🎯 Consenso Perfeito!' : '📊 Votos Registrados' }}</h3>
+                    @if (viewingVoteResult()!.consensus) {
+                      <div class="consensus-badge">CONSENSO</div>
+                    }
+                  </div>
+                  <div class="results-stats">
+                    <div class="result-stat">
+                      <span class="result-value">{{ viewingVoteResult()!.average | number: '1.1-1' }}</span>
+                      <span class="result-label">{{ viewingVoteResult()!.isWeighted ? 'Média Ponderada' : 'Média' }}</span>
+                    </div>
+                    <div class="result-stat">
+                      <span class="result-value">{{ viewingVoteResult()!.min }}</span>
+                      <span class="result-label">Mínimo</span>
+                    </div>
+                    <div class="result-stat">
+                      <span class="result-value">{{ viewingVoteResult()!.max }}</span>
+                      <span class="result-label">Máximo</span>
+                    </div>
+                  </div>
+                  <div class="distribution">
+                    @for (entry of getViewingDistributionEntries(); track entry.value) {
+                      <div class="dist-bar">
+                        <span class="dist-value">{{ entry.value }}</span>
+                        <div class="dist-bar-track">
+                          <div class="dist-bar-fill" [style.width.%]="entry.percentage"></div>
+                        </div>
+                        <span class="dist-count">{{ entry.count }}x</span>
+                      </div>
+                    }
+                  </div>
+                  <div class="votes-revealed">
+                    @for (vote of viewingVoteResult()!.votes; track vote.id) {
+                      <div class="vote-card-revealed" [class]="'rarity-' + cardRarity[vote.value]">
+                        <div class="vote-card-value">{{ vote.value }}</div>
+                        <div class="vote-card-user">{{ vote.userName }}</div>
+                        @if (viewingCompletedStory()?.category) {
+                          <div class="vote-card-weight">
+                            ×{{ getVoteWeight(vote.characterClass, viewingCompletedStory()!.category) | number: '1.1-1' }}
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
         } @else {
           <!-- No active voting -->
           <div class="waiting-area rpg-card animate-fade-in-up">

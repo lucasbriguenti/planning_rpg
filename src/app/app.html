@@ -30,10 +30,11 @@
               <div class="xp-fill" [style.width.%]="xpPercentage"></div>
             </div>
           </div>
-          <a routerLink="/profile" class="avatar avatar-sm user-avatar">
-            {{ charIcon }}
+          <a routerLink="/profile" class="user-profile-chip">
+            <span class="avatar avatar-sm">{{ charIcon }}</span>
+            <span class="user-profile-name">{{ currentUser.displayName }}</span>
           </a>
-          <button class="btn btn-ghost btn-sm navbar-logout-desktop" (click)="logout()">Sair</button>
+          <button class="btn btn-ghost btn-sm navbar-logout-desktop" (click)="logout()">🚪 Sair</button>
         </div>
       }
     </nav>

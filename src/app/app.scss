@@ -47,6 +47,34 @@
 
 .navbar-user { display: flex; align-items: center; gap: $spacing-sm; margin-left: auto; }
 
+.user-profile-chip {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 4px 12px 4px 4px;
+  border-radius: $radius-full;
+  border: 1px solid $color-border;
+  background: rgba(white, 0.04);
+  color: $color-text;
+  text-decoration: none;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: rgba($color-primary, 0.5);
+    background: rgba($color-primary, 0.08);
+    color: $color-primary-light;
+  }
+}
+
+.user-profile-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .user-xp {
   display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
   .xp-level { font-size: 0.7rem; color: $color-gold; font-family: $font-fantasy; font-weight: 600; }
@@ -83,6 +111,8 @@
   .navbar-user {
     .user-xp { display: none; }
     .navbar-logout-desktop { display: none; }
+    .user-profile-name { display: none; }
+    .user-profile-chip { padding: 4px; }
   }
   .mobile-nav-divider { display: block; }
   .mobile-nav-btn { display: flex; }
