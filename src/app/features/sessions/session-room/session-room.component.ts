@@ -337,10 +337,13 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   }
 
   private detectCategory(title: string): StoryCategory | undefined {
-    const t = title.trimStart();
-    if (/^\[?back\b/i.test(t)) return 'back';
-    if (/^\[?front\b/i.test(t)) return 'front';
-    return undefined;
+    const lower = title.toLowerCase();
+    const backIdx = lower.search(/\bback\b/);
+    const frontIdx = lower.search(/\bfront\b/);
+    if (backIdx === -1 && frontIdx === -1) return undefined;
+    if (backIdx === -1) return 'front';
+    if (frontIdx === -1) return 'back';
+    return backIdx < frontIdx ? 'back' : 'front';
   }
 
   getDistributionEntries(): { value: string | number; count: number; percentage: number }[] {
