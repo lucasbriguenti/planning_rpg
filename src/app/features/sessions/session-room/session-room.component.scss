@@ -444,6 +444,8 @@
   position: relative;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 
   // Inner border frame (like a real card)
   &::before {
@@ -477,9 +479,11 @@
     opacity: 0.9;
   }
 
-  &:hover:not(:disabled) {
-    transform: translateY(-10px) scale(1.06);
-    box-shadow: 0 14px 28px rgba(0,0,0,0.45);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      transform: translateY(-10px) scale(1.06);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.45);
+    }
   }
 
   &.selected {
@@ -528,7 +532,20 @@
   }
 }
 
-.host-controls { display: flex; justify-content: center; padding-top: $spacing-md; }
+.host-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  padding-top: $spacing-md;
+}
+
+.host-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #aaa);
+  margin: 0;
+  text-align: center;
+}
 
 // Waiting area
 .waiting-area {
@@ -575,7 +592,10 @@
   .session-header { flex-direction: column; gap: $spacing-sm; }
   .header-left { flex-wrap: wrap; }
   .session-title { font-size: 1.3rem; }
-  .header-actions { display: flex; flex-wrap: wrap; }
+  .header-actions { display: flex; flex-wrap: wrap; width: 100%; }
+
+  .voting-story-card { padding: $spacing-md; }
+  .final-estimate-display { flex-wrap: wrap; }
 
   .cards-grid { justify-content: center; }
   .poker-card {
@@ -591,6 +611,40 @@
 
   .finalize-options { gap: $spacing-xs; }
   .finalize-options .btn { flex: 1; min-width: 48px; }
+
+  .modal-card { padding: $spacing-lg; }
+}
+
+@media (max-width: $bp-sm) {
+  .session-title { font-size: 1.1rem; }
+  .voting-story-title { font-size: 1.1rem; }
+
+  .cards-grid {
+    padding-top: $spacing-md;
+    gap: $spacing-xs;
+  }
+
+  .poker-card {
+    width: 52px;
+    height: 74px;
+    .card-suit { font-size: 1.2rem; }
+    .card-corner { font-size: 0.6rem; }
+    .card-tl { top: 4px; left: 5px; }
+    .card-br { bottom: 4px; right: 5px; }
+  }
+
+  .vote-card-revealed {
+    min-width: 56px;
+    padding: $spacing-xs $spacing-sm;
+  }
+
+  .results-stats { gap: $spacing-sm; }
+
+  .big-code { font-size: 1.4rem; letter-spacing: 0.15em; padding: 6px $spacing-md; }
+
+  .finalize-options .btn { min-width: 38px; padding: 4px 6px; font-size: 0.72rem; }
+
+  .modal-card { padding: $spacing-md; }
 }
 
 // Azure button

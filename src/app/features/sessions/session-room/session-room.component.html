@@ -316,7 +316,11 @@
                 @if (hasVoted()) {
                   <div class="cards-voted-msg">
                     <span class="voted-icon">✅</span>
-                    Você votou <strong>{{ myVote()?.value }}</strong> — aguardando os demais...
+                    @if (isHost()) {
+                      Você votou <strong>{{ myVote()?.value }}</strong> — revele quando quiser.
+                    } @else {
+                      Você votou <strong>{{ myVote()?.value }}</strong> — aguardando o host revelar...
+                    }
                   </div>
                 }
 
@@ -347,6 +351,9 @@
                     >
                       🔮 Revelar Votos ({{ votedCount() }}/{{ participantCount() }})
                     </button>
+                    @if (votedCount() > 0 && votedCount() < participantCount()) {
+                      <p class="host-hint">Nem todos votaram — você pode revelar assim mesmo.</p>
+                    }
                   </div>
                 }
               </div>
