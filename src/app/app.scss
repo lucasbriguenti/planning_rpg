@@ -109,6 +109,7 @@
     &.open { display: flex; }
   }
   .navbar-user {
+    margin-left: 0;
     .user-xp { display: none; }
     .navbar-logout-desktop { display: none; }
     .user-profile-name { display: none; }
