@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, switchMap, of } from 'rxjs';
 import { NotificationService, Notification } from './core/services/notification.service';
+import { AnalyticsService } from './core/services/analytics.service';
 import { UserService } from './core/services/user.service';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
@@ -17,6 +18,7 @@ export class App implements OnInit {
   private router = inject(Router);
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private analytics = inject(AnalyticsService);
   readonly notificationService = inject(NotificationService);
   readonly themeService = inject(ThemeService);
 
@@ -32,6 +34,7 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.notificationService.notifications$.subscribe(n => (this.notifications = n));
+    void this.analytics.trackPageView();
 
     this.authService.currentUser$().pipe(
       switchMap(u => u ? this.userService.getProfile(u.uid) : of(null))
@@ -45,6 +48,7 @@ export class App implements OnInit {
 
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
       this.isMenuOpen = false;
+      void this.analytics.trackPageView();
     });
   }
 
