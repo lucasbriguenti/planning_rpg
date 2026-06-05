@@ -1,8 +1,75 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function authed() {
+      return request.auth != null;
+    }
+
+    function sessionData(sessionId) {
+      return get(/databases/$(database)/documents/sessions/$(sessionId)).data;
+    }
+
+    function isSessionHost(sessionId) {
+      return authed() && sessionData(sessionId).hostId == uid();
+    }
+
+    // ── Usuários ──────────────────────────────────────────────────────────────
+    // Perfis são públicos para autenticados (leaderboard, lista de participantes)
+    // Escrita restrita ao próprio usuário
+    match /users/{userId} {
+      allow read:   if authed();
+      allow create: if authed() && userId == uid();
+      allow update: if authed() && userId == uid();
+      allow delete: if false;
+    }
+
+    // PAT do Azure e outros segredos — somente o dono lê e escreve
+    match /users/{userId}/private/{document} {
+      allow read, write: if authed() && userId == uid();
+    }
+
+    // ── Sessões ───────────────────────────────────────────────────────────────
+    match /sessions/{sessionId} {
+      // Qualquer autenticado lê: necessário para busca por inviteCode e join
+      allow read: if authed();
+
+      // Qualquer autenticado cria, mas deve declarar-se como host no documento
+      allow create: if authed() && request.resource.data.hostId == uid();
+
+      // Host controla a sessão; não-host só pode atualizar o array de participantes
+      // (ao entrar na sessão via joinSession)
+      allow update: if authed() && (
+        isSessionHost(sessionId) ||
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['participants', 'updatedAt'])
+      );
+
+      allow delete: if isSessionHost(sessionId);
+    }
+
+    // ── Histórias ─────────────────────────────────────────────────────────────
+    // Todos lêem em tempo real (onSnapshot); somente host cria, edita e exclui
+    match /sessions/{sessionId}/stories/{storyId} {
+      allow read:                  if authed();
+      allow create, update, delete: if isSessionHost(sessionId);
+    }
+
+    // ── Votos ─────────────────────────────────────────────────────────────────
+    match /sessions/{sessionId}/stories/{storyId}/votes/{voterId} {
+      // Revelação em tempo real — todos os autenticados lêem
+      allow read: if authed();
+
+      // Cada usuário escreve apenas o próprio voto
+      allow create, update: if authed() && voterId == uid();
+
+      // Host pode excluir votos: necessário em startVoting (reiniciar rodada)
+      // e em deleteAllStories / deleteStory
+      allow delete: if authed() && (voterId == uid() || isSessionHost(sessionId));
     }
   }
 }
