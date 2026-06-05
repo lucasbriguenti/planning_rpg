@@ -37,7 +37,7 @@
     bottom: -4px;
     right: -4px;
     background: $color-gold;
-    color: #1a0a00;
+    color: $color-on-gold;
     width: 28px;
     height: 28px;
     border-radius: $radius-full;
@@ -255,4 +255,31 @@
   .modal-card { padding: $spacing-lg; }
   .modal-actions { flex-direction: column-reverse; }
   .modal-actions .btn { width: 100%; }
+}
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .hero-section {
+    background: linear-gradient(135deg, rgba($lt-primary, 0.07), rgba($lt-bg-elevated, 0.95));
+    border-color: rgba($lt-primary, 0.15);
+  }
+
+  .hero-avatar .level-badge { border-color: $lt-bg-card; }
+
+  .hero-greeting, .hero-class, .hero-name { color: $lt-text; }
+
+  .xp-bar { background: $lt-border; }
+  .xp-fill { background: linear-gradient(90deg, $lt-primary-dark, $lt-primary, $lt-gold); }
+
+  .session-card:hover { box-shadow: 0 4px 16px rgba($lt-primary, 0.2); }
+
+  .session-code { border-top-color: $lt-border; }
+
+  .achievement-badge.locked { background: rgba($lt-border, 0.6); border-color: $lt-border; }
+  .achievement-badge.unlocked:hover { background: rgba($lt-gold, 0.12); }
+
+  .modal-overlay { background: $lt-overlay; }
+  .modal-card { background: $lt-bg-card; border-color: $lt-border; }
+  .modal-title { color: $lt-text; }
+  .modal-subtitle { color: $lt-text-muted; }
 }

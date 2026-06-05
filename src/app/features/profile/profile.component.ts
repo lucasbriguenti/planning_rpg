@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { take } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -21,6 +21,10 @@ export class ProfileComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly notify = inject(NotificationService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  readonly isSetupMode = signal(false);
 
   readonly currentUser = signal<UserProfile | null>(null);
   readonly loading = signal(true);
@@ -44,6 +48,8 @@ export class ProfileComponent implements OnInit {
   readonly getLevelTitle = getLevelTitle;
 
   ngOnInit(): void {
+    this.isSetupMode.set(this.route.snapshot.queryParamMap.get('setup') === 'true');
+
     this.authService.currentUser$().pipe(take(1)).subscribe(authUser => {
       if (!authUser) { this.loading.set(false); return; }
       this.userService.getProfile(authUser.uid).pipe(take(1)).subscribe({
@@ -133,5 +139,13 @@ export class ProfileComponent implements OnInit {
     await this.userService.updateCharacterClass(user.uid, cls);
     this.currentUser.set({ ...user, characterClass: cls });
     this.notify.success('Classe alterada!', `Agora você é um ${CHARACTER_CLASSES[cls].name}`);
+    if (this.isSetupMode()) {
+      await this.userService.markProfileSetupCompleted(user.uid);
+      this.isSetupMode.set(false);
+    }
+  }
+
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

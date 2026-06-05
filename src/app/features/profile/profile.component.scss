@@ -2,6 +2,42 @@
 
 .profile-page { display: flex; flex-direction: column; gap: $spacing-2xl; max-width: 900px; margin: 0 auto; }
 
+.setup-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  padding: $spacing-xl $spacing-2xl;
+  border: 2px solid $color-gold;
+  background: linear-gradient(135deg, rgba($color-gold, 0.08) 0%, rgba($color-primary, 0.06) 100%);
+
+  &-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+  }
+
+  &-icon { font-size: 2.5rem; flex-shrink: 0; }
+
+  &-title {
+    margin: 0 0 $spacing-xs;
+    font-size: 1.25rem;
+    color: $color-gold;
+  }
+
+  &-desc {
+    margin: 0;
+    color: $color-text-muted;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    .btn { width: 100%; }
+  }
+}
+
 .profile-hero { padding: $spacing-2xl; }
 
 .hero-top {
@@ -20,7 +56,7 @@
     bottom: -4px;
     right: -4px;
     background: $color-gold;
-    color: #1a0a00;
+    color: $color-on-gold;
     width: 30px;
     height: 30px;
     border-radius: $radius-full;
@@ -204,7 +240,7 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 4px;
-  &.configured { background: rgba(39,174,96,0.15); color: #27ae60; }
+  &.configured { background: rgba($color-configured, 0.15); color: $color-configured; }
   &.empty      { background: rgba(149,165,166,0.15); color: $color-text-muted; }
 }
 
@@ -391,4 +427,57 @@
   .profile-name { font-size: 1.6rem; }
   .profile-stats { grid-template-columns: repeat(2, 1fr); }
   .class-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .hero-avatar-wrap .level-ring { border-color: $lt-bg-card; }
+
+  .profile-name, .ach-name, .help-section-title { color: $lt-text; }
+  .profile-email, .class-tag { color: $lt-text-dim; }
+  .profile-badges { color: $lt-text-muted; }
+
+  .xp-block {
+    .xp-header { color: $lt-text-muted; }
+    .xp-bar { background: $lt-border; }
+    .xp-fill { background: linear-gradient(90deg, $lt-primary-dark, $lt-primary, $lt-gold); }
+    .total-xp { color: $lt-text-dim; }
+  }
+
+  .profile-stats { border-top-color: $lt-border; }
+
+  .stat-card {
+    background: rgba($lt-bg-elevated, 0.8);
+    .stat-label { color: $lt-text-muted; }
+  }
+
+  .class-card {
+    background: $lt-bg;
+    border-color: $lt-border;
+    &:hover { background: $lt-bg-elevated; }
+    &.active { background: rgba($lt-bg-selected, 0.6); }
+    .cls-name { color: $lt-text; }
+    .cls-desc { color: $lt-text-muted; }
+  }
+
+  .ach-icon-wrap { background: $lt-bg-elevated; }
+  .ach-desc { color: $lt-text-muted; }
+
+  .btn-help {
+    border-color: $lt-border;
+    background: $lt-bg;
+    color: $lt-text-muted;
+    &:hover { border-color: $lt-primary; color: $lt-primary; background: rgba($lt-primary, 0.08); }
+  }
+
+  .help-section { border-bottom-color: $lt-border; }
+  .help-step { background: $lt-primary; }
+  .help-text {
+    color: $lt-text-muted;
+    code { background: $lt-bg-elevated; color: $lt-code; }
+  }
+  .help-url-example { background: $lt-bg; border-color: $lt-border; }
+  .url-dim { color: $lt-text-dim; }
+  .help-hint { color: $lt-text-dim; strong { color: $lt-text-muted; } }
+  .help-steps li { color: $lt-text-muted; strong { color: $lt-text; } }
 }

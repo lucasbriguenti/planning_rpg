@@ -21,6 +21,15 @@ export class UserService {
     return (await getDoc(doc(this.db, 'users', uid))).exists();
   }
 
+  async getProfileOnce(uid: string): Promise<UserProfile | undefined> {
+    const snap = await getDoc(doc(this.db, 'users', uid));
+    return snap.exists() ? (snap.data() as UserProfile) : undefined;
+  }
+
+  async markProfileSetupCompleted(uid: string): Promise<void> {
+    await updateDoc(doc(this.db, 'users', uid), { profileSetupCompleted: true, updatedAt: new Date() });
+  }
+
   getProfile(uid: string): Observable<UserProfile | undefined> {
     return new Observable(observer => {
       getDoc(doc(this.db, 'users', uid))

@@ -58,7 +58,7 @@ textarea.form-control { resize: vertical; font-family: $font-body; }
 .spinner {
   width: 18px; height: 18px;
   border: 2px solid rgba(0,0,0,0.2);
-  border-top-color: #1a0a00;
+  border-top-color: $color-on-gold;
   border-radius: $radius-full;
   animation: spin-slow 0.8s linear infinite;
   display: inline-block;
@@ -68,4 +68,15 @@ textarea.form-control { resize: vertical; font-family: $font-body; }
   .page-title { font-size: 1.4rem; }
   .form-actions { flex-direction: column-reverse; }
   .form-actions .btn { width: 100%; }
+}
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .page-subtitle { color: $lt-text-muted; }
+
+  .story-number {
+    background: rgba($lt-primary, 0.1);
+    border-color: rgba($lt-primary, 0.25);
+    color: $lt-primary;
+  }
 }

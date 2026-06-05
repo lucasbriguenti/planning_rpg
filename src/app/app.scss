@@ -119,3 +119,38 @@
   .mobile-nav-btn { display: flex; }
   .main-content { padding: $spacing-md; }
 }
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .navbar {
+    background: rgba($lt-bg-card, 0.95);
+    border-bottom-color: $lt-border;
+  }
+
+  .navbar-brand .brand-name { color: $lt-text; }
+
+  .nav-link {
+    color: $lt-text-muted;
+    &:hover { color: $lt-text; background: rgba($lt-primary, 0.07); }
+    &.active { color: $lt-primary; background: rgba($lt-primary, 0.1); }
+  }
+
+  .navbar-links {
+    background: $lt-bg-card;
+    border-bottom-color: $lt-border;
+  }
+
+  .user-profile-chip {
+    border-color: $lt-border;
+    background: rgba($lt-primary, 0.04);
+    color: $lt-text;
+    &:hover { border-color: rgba($lt-primary, 0.4); background: rgba($lt-primary, 0.08); color: $lt-primary; }
+  }
+
+  .user-xp {
+    .xp-level { color: $lt-gold; }
+    .xp-mini-bar { background: $lt-border; }
+  }
+
+  .mobile-nav-divider { border-color: $lt-border; }
+}

@@ -181,8 +181,8 @@
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 20px;
-  &.category-back  { background: rgba(#9b59b6, 0.2); color: #c39bd3; }
-  &.category-front { background: rgba(#3498db, 0.2); color: #85c1e9; }
+  &.category-back  { background: rgba($color-category-back, 0.2); color: $color-category-back-light; }
+  &.category-front { background: rgba($color-category-front, 0.2); color: $color-category-front-light; }
 }
 
 .story-menu-btn {
@@ -274,7 +274,7 @@
 
 
 .btn-azure {
-  background: #0078d4;
+  background: $color-azure;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -283,7 +283,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, opacity 0.2s;
-  &:hover { background: #106ebe; }
+  &:hover { background: $color-azure-hover; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
@@ -318,7 +318,7 @@
 
 .consensus-badge {
   background: linear-gradient(135deg, $color-gold, $color-gold-light);
-  color: #1a0a00;
+  color: $color-on-gold;
   font-size: 0.7rem;
   font-weight: 700;
   padding: 3px 10px;
@@ -649,10 +649,10 @@
 
 // Azure button
 .btn-azure {
-  background: linear-gradient(135deg, #0078d4, #005a9e);
+  background: linear-gradient(135deg, $color-azure, $color-azure-deep);
   color: #fff;
   border: none;
-  &:hover:not(:disabled) { background: linear-gradient(135deg, #106ebe, #004578); }
+  &:hover:not(:disabled) { background: linear-gradient(135deg, $color-azure-hover, $color-azure-deeper); }
 }
 
 // Azure Import Modal
@@ -663,4 +663,67 @@
   text-align: center;
   font-family: $font-mono;
   letter-spacing: 0.1em;
+}
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .session-title, .voting-story-title { color: $lt-text; }
+  .meta-item, .vote-progress { color: $lt-text-muted; }
+
+  .category-btn {
+    border-color: $lt-border;
+    background: $lt-bg;
+    color: $lt-text-muted;
+    &:hover:not(.active) { background: $lt-bg-elevated; }
+  }
+
+  .story-item {
+    &:hover:not(.active) { background: rgba($lt-primary, 0.04); }
+    &.active { background: rgba($lt-primary, 0.08); border-color: rgba($lt-primary, 0.25); }
+    &.viewing { background: rgba($lt-gold, 0.06); border-color: rgba($lt-gold, 0.3); }
+  }
+
+  .story-title   { color: $lt-text; }
+  .story-menu-btn {
+    border-color: $lt-border;
+    color: $lt-text-muted;
+    &:hover { border-color: $lt-primary; color: $lt-primary; background: rgba($lt-primary, 0.06); }
+  }
+
+  .story-action-drawer { border-top-color: $lt-border; }
+
+  .drawer-btn {
+    background: $lt-bg;
+    border-color: $lt-border;
+    color: $lt-text-muted;
+    &:hover { color: $lt-text; border-color: $lt-text-dim; background: $lt-bg-elevated; }
+  }
+
+  .vote-progress-bar { background: $lt-border; }
+  .vote-progress-fill { background: linear-gradient(90deg, $lt-primary, $color-success); }
+
+  .dist-bar-track { background: $lt-border; }
+  .dist-bar-fill { background: linear-gradient(90deg, $lt-primary, $color-accent); }
+  .dist-value, .dist-count { color: $lt-text-muted; }
+
+  .poker-card {
+    background: $lt-bg-card;
+    border-color: $lt-border;
+    &::before { border-color: rgba(0, 0, 0, 0.04); }
+    &:hover:not(:disabled) { box-shadow: 0 14px 28px rgba(0,0,0,0.15); }
+    &.rarity-epic {
+      background: linear-gradient(160deg, $lt-bg-card, rgba($rarity-epic, 0.06));
+    }
+    &.rarity-legendary {
+      background: linear-gradient(160deg, $lt-bg-card, rgba($rarity-legendary, 0.08));
+    }
+  }
+
+  .vote-card-weight { background: rgba(0,0,0,0.08); color: $lt-code; }
+  .finalize-area { border-top-color: $lt-border; }
+  .finalize-hint { color: $lt-text-muted; }
+
+  .waiting-area p { color: $lt-text-muted; }
+
+  .modal-card { background: $lt-bg-card; border-color: $lt-border; }
 }

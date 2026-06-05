@@ -134,3 +134,20 @@
   .auth-card { padding: $spacing-lg $spacing-md; }
   .auth-title { font-size: 1.6rem; }
 }
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .auth-card {
+    background: rgba($lt-bg-card, 0.95);
+    border-color: $lt-border;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .auth-title { color: $lt-text; }
+  .auth-subtitle { color: $lt-text-muted; }
+
+  .auth-divider::before { background: $lt-border; }
+  .auth-divider span { background: rgba($lt-bg-card, 0.95); color: $lt-text-dim; }
+
+  .auth-link { color: $lt-text-muted; a { color: $lt-primary; } }
+}

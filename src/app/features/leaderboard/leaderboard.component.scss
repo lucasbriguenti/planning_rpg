@@ -39,14 +39,14 @@
 .podium-block {
   width: 90px;
   border-radius: $radius-sm $radius-sm 0 0;
-  &.height-1 { height: 90px; background: linear-gradient(to top, #a67800, $color-gold); }
-  &.height-2 { height: 65px; background: linear-gradient(to top, #666, #aaa); }
-  &.height-3 { height: 48px; background: linear-gradient(to top, #a86000, #cd7f32); }
+  &.height-1 { height: 90px; background: linear-gradient(to top, $color-medal-gold, $color-gold); }
+  &.height-2 { height: 65px; background: linear-gradient(to top, $color-medal-silver-dark, $color-medal-silver); }
+  &.height-3 { height: 48px; background: linear-gradient(to top, $color-medal-bronze-dark, $color-medal-bronze); }
 }
 
-.first  .avatar { border-color: $color-gold;  box-shadow: $shadow-glow-gold; width: 80px; height: 80px; font-size: 2rem; }
-.second .avatar { border-color: #aaaaaa; width: 64px; height: 64px; font-size: 1.6rem; }
-.third  .avatar { border-color: #cd7f32; width: 64px; height: 64px; font-size: 1.6rem; }
+.first  .avatar { border-color: $color-gold;          box-shadow: $shadow-glow-gold; width: 80px; height: 80px; font-size: 2rem; }
+.second .avatar { border-color: $color-medal-silver;   width: 64px; height: 64px; font-size: 1.6rem; }
+.third  .avatar { border-color: $color-medal-bronze;   width: 64px; height: 64px; font-size: 1.6rem; }
 
 // List
 .leaderboard-card { padding: $spacing-xl; }
@@ -70,8 +70,8 @@
   }
 
   &.rank-gold   { background: rgba($color-gold, 0.07); border-color: rgba($color-gold, 0.2); }
-  &.rank-silver { background: rgba(#aaaaaa, 0.05); }
-  &.rank-bronze { background: rgba(#cd7f32, 0.05); }
+  &.rank-silver { background: rgba($color-medal-silver, 0.05); }
+  &.rank-bronze { background: rgba($color-medal-bronze, 0.05); }
 }
 
 .row-rank {
@@ -157,4 +157,22 @@
   .hidden-sm { display: none; }
   .row-stats { display: none; }
   .leaderboard-row { gap: $spacing-sm; padding: $spacing-sm; }
+}
+
+// ─── Light Theme ─────────────────────────────────────────────────────────────
+:host-context([data-theme="light"]) {
+  .podium-name { color: $lt-text; }
+
+  .leaderboard-row {
+    &:hover { background: rgba($lt-primary, 0.05); }
+    &.current-user { background: rgba($lt-primary, 0.07); border-color: rgba($lt-primary, 0.2); }
+  }
+
+  .row-rank .rank-number { color: $lt-text-muted; }
+  .player-name { color: $lt-text; }
+  .player-title { color: $lt-text-muted; }
+
+  .stat-pill { background: $lt-bg-elevated; color: $lt-text-muted; }
+
+  .you-badge { background: rgba($lt-primary, 0.15); color: $lt-primary; }
 }

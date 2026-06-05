@@ -50,8 +50,8 @@ $radius-full: 9999px;
 
 // Shadows
 $shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-$shadow-glow-primary: 0 0 20px rgba(139, 92, 246, 0.4);
-$shadow-glow-gold:    0 0 20px rgba(245, 158, 11, 0.5);
+$shadow-glow-primary: 0 0 20px rgba($color-primary, 0.4);
+$shadow-glow-gold:    0 0 20px rgba($color-gold, 0.5);
 
 // Transitions
 $transition-fast:   150ms ease;
@@ -63,3 +63,45 @@ $bp-sm:  576px;
 $bp-md:  768px;
 $bp-lg:  992px;
 $bp-xl:  1200px;
+
+// ── Extended Design Tokens ────────────────────────────────────────────────
+$color-gold-gradient:  #c27d03;   // gold button — darker gradient stop
+$color-on-gold:        #1a0a00;   // readable text on gold/amber backgrounds
+$color-danger-hover:   #c93333;   // .btn-danger hover
+$color-configured:     #27ae60;   // "configured / active" status badge
+
+// Podium / Medal
+$color-medal-gold:        #a67800;
+$color-medal-silver:      #aaaaaa;
+$color-medal-silver-dark: #666666;
+$color-medal-bronze:      #cd7f32;
+$color-medal-bronze-dark: #a86000;
+
+// Story Category
+$color-category-back:       #9b59b6;
+$color-category-back-light: #c39bd3;
+$color-category-front:      #3498db;
+$color-category-front-light:#85c1e9;
+
+// Azure DevOps Brand
+$color-azure:        #0078d4;
+$color-azure-hover:  #106ebe;
+$color-azure-deep:   #005a9e;
+$color-azure-deeper: #004578;
+
+// ── Light Theme Palette ───────────────────────────────────────────────────
+$lt-bg:           #f8fafc;
+$lt-bg-card:      #ffffff;
+$lt-bg-elevated:  #f1f5f9;
+$lt-bg-selected:  #e0f2fe;
+$lt-border:       #e2e8f0;
+$lt-primary:      #2563eb;
+$lt-primary-dark: #1d4ed8;
+$lt-primary-light:#60a5fa;
+$lt-text:         #1e293b;
+$lt-text-muted:   #64748b;
+$lt-text-dim:     #94a3b8;
+$lt-text-ghost:   #475569;
+$lt-gold:         #d97706;
+$lt-code:         #0284c7;
+$lt-overlay:      rgba(#0f172a, 0.55);

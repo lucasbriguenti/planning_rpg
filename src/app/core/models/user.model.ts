@@ -20,6 +20,7 @@ export interface UserProfile {
   totalSessions: number;
   perfectConsensus: number;
   achievements: Achievement[];
+  profileSetupCompleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

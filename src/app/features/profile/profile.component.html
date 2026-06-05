@@ -1,5 +1,18 @@
 @if (!loading() && currentUser()) {
   <div class="profile-page">
+
+    @if (isSetupMode()) {
+      <div class="setup-banner rpg-card animate-fade-in-up">
+        <div class="setup-banner-content">
+          <span class="setup-banner-icon">⚔️</span>
+          <div>
+            <h2 class="setup-banner-title">Bem-vindo, {{ currentUser()!.displayName }}!</h2>
+            <p class="setup-banner-desc">Escolha sua classe abaixo para começar sua jornada. Você pode mudar depois.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" (click)="goToDashboard()">Ir para o Dashboard</button>
+      </div>
+    }
     <!-- Profile Hero -->
     <section class="profile-hero rpg-card animate-fade-in-up">
       <div class="hero-top">

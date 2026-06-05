@@ -42,7 +42,13 @@ export class LoginComponent {
   loginWithGoogle(): void {
     this.loading.set(true);
     this.authService.loginWithGoogle().subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: ({ needsSetup }) => {
+        if (needsSetup) {
+          this.router.navigate(['/profile'], { queryParams: { setup: 'true' } });
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+      },
       error: err => {
         this.loading.set(false);
         this.notify.error('Falha no login', err.message);

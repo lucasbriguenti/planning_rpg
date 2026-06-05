@@ -18,6 +18,9 @@
         @if (currentUser) {
           <hr class="mobile-nav-divider">
           <a routerLink="/profile" class="nav-link mobile-nav-btn" (click)="isMenuOpen = false">👤 Meu Perfil</a>
+          <button class="btn btn-ghost btn-sm mobile-nav-btn" (click)="themeService.toggle(); isMenuOpen = false">
+            {{ themeService.isDark() ? '☀️ Tema Claro' : '🌙 Tema Escuro' }}
+          </button>
           <button class="btn btn-ghost btn-sm mobile-nav-btn" (click)="logout(); isMenuOpen = false">🚪 Sair</button>
         }
       </div>
@@ -34,6 +37,9 @@
             <span class="avatar avatar-sm">{{ charIcon }}</span>
             <span class="user-profile-name">{{ currentUser.displayName }}</span>
           </a>
+          <button class="btn btn-icon btn-ghost" (click)="themeService.toggle()" [title]="themeService.isDark() ? 'Tema claro' : 'Tema escuro'">
+            {{ themeService.isDark() ? '☀️' : '🌙' }}
+          </button>
           <button class="btn btn-ghost btn-sm navbar-logout-desktop" (click)="logout()">🚪 Sair</button>
         </div>
       }

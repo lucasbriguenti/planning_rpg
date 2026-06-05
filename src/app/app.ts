@@ -4,6 +4,7 @@ import { filter, switchMap, of } from 'rxjs';
 import { NotificationService, Notification } from './core/services/notification.service';
 import { UserService } from './core/services/user.service';
 import { AuthService } from './core/services/auth.service';
+import { ThemeService } from './core/services/theme.service';
 import { UserProfile, xpProgressInLevel, CHARACTER_CLASSES } from './core/models/user.model';
 
 @Component({
@@ -17,6 +18,7 @@ export class App implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   readonly notificationService = inject(NotificationService);
+  readonly themeService = inject(ThemeService);
 
   notifications: Notification[] = [];
   currentUser: UserProfile | null = null;

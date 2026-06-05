@@ -37,7 +37,7 @@ export class AuthService {
         await this.userService.createProfile(cred.user.uid, {
           uid: cred.user.uid, displayName, email, characterClass,
           xp: 0, level: 1, totalVotes: 0, totalSessions: 0, perfectConsensus: 0,
-          achievements: [], createdAt: new Date(), updatedAt: new Date(),
+          achievements: [], profileSetupCompleted: true, createdAt: new Date(), updatedAt: new Date(),
         });
       })
     );
@@ -49,7 +49,7 @@ export class AuthService {
     );
   }
 
-  loginWithGoogle(): Observable<void> {
+  loginWithGoogle(): Observable<{ needsSetup: boolean }> {
     return from(signInWithPopup(this.fb.auth, new GoogleAuthProvider())).pipe(
       switchMap(async cred => {
         const exists = await this.userService.profileExists(cred.user.uid);
@@ -61,9 +61,12 @@ export class AuthService {
             photoURL: cred.user.photoURL ?? undefined,
             characterClass: 'warrior',
             xp: 0, level: 1, totalVotes: 0, totalSessions: 0, perfectConsensus: 0,
-            achievements: [], createdAt: new Date(), updatedAt: new Date(),
+            achievements: [], profileSetupCompleted: false, createdAt: new Date(), updatedAt: new Date(),
           });
+          return { needsSetup: true };
         }
+        const profile = await this.userService.getProfileOnce(cred.user.uid);
+        return { needsSetup: profile?.profileSetupCompleted === false };
       })
     );
   }
