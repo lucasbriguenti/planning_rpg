@@ -159,12 +159,12 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   selectStory(story: Story): void {
     if (story.id === this.session()?.currentStoryId) return;
 
-    if (this.isHost()) {
+    if (this.isHost() && story.status !== 'completed') {
       void this.startVoting(story.id);
       return;
     }
 
-    // participante: toggle view dos votos anteriores
+    // host ou participante: toggle view dos votos de histórias concluídas
     if (this.viewingCompletedStory()?.id === story.id) {
       this.closeCompletedView();
       return;
@@ -191,6 +191,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
 
   async startVoting(storyId: string): Promise<void> {
     if (!this.isHost()) return;
+    this.closeCompletedView();
     await this.sessionService.startVoting(this.session()!.id, storyId);
     this.notify.info('Votação iniciada!', 'Os participantes podem votar agora.');
   }
