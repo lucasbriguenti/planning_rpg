@@ -6,12 +6,14 @@ import {
 } from 'firebase/auth';
 import { Observable, from, switchMap, of } from 'rxjs';
 import { FirebaseService } from './firebase.service';
+import { AnalyticsService } from './analytics.service';
 import { UserService } from './user.service';
 import { CharacterClass } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private fb = inject(FirebaseService);
+  private analytics = inject(AnalyticsService);
   private userService = inject(UserService);
   private readonly ngZone = inject(NgZone);
 
@@ -39,13 +41,17 @@ export class AuthService {
           xp: 0, level: 1, totalVotes: 0, totalSessions: 0, perfectConsensus: 0,
           achievements: [], profileSetupCompleted: true, createdAt: new Date(), updatedAt: new Date(),
         });
+        void this.analytics.trackEvent('sign_up', { method: 'email' });
       })
     );
   }
 
   login(email: string, password: string): Observable<void> {
     return from(signInWithEmailAndPassword(this.fb.auth, email, password)).pipe(
-      switchMap(() => of(undefined))
+      switchMap(() => {
+        void this.analytics.trackEvent('login', { method: 'email' });
+        return of(undefined);
+      })
     );
   }
 
@@ -63,15 +69,23 @@ export class AuthService {
             xp: 0, level: 1, totalVotes: 0, totalSessions: 0, perfectConsensus: 0,
             achievements: [], profileSetupCompleted: false, createdAt: new Date(), updatedAt: new Date(),
           });
+          void this.analytics.trackEvent('sign_up', { method: 'google' });
+          void this.analytics.trackEvent('login', { method: 'google' });
           return { needsSetup: true };
         }
         const profile = await this.userService.getProfileOnce(cred.user.uid);
+        void this.analytics.trackEvent('login', { method: 'google' });
         return { needsSetup: profile?.profileSetupCompleted === false };
       })
     );
   }
 
   logout(): Observable<void> {
-    return from(signOut(this.fb.auth));
+    return from(signOut(this.fb.auth)).pipe(
+      switchMap(() => {
+        void this.analytics.trackEvent('logout');
+        return of(undefined);
+      })
+    );
   }
 }

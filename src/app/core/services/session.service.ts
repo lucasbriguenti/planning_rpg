@@ -6,6 +6,7 @@ import {
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { FirebaseService } from './firebase.service';
+import { AnalyticsService } from './analytics.service';
 import { Session, Participant } from '../models/session.model';
 import { Story, StoryCategory } from '../models/story.model';
 import { Vote } from '../models/vote.model';
@@ -18,6 +19,7 @@ function generateInviteCode(): string {
 @Injectable({ providedIn: 'root' })
 export class SessionService {
   private readonly db = inject(FirebaseService).db;
+  private readonly analytics = inject(AnalyticsService);
   private readonly ngZone = inject(NgZone);
 
   async createSession(host: UserProfile, name: string, description?: string): Promise<string> {
@@ -37,6 +39,10 @@ export class SessionService {
       inviteCode: generateInviteCode(),
     };
     await setDoc(doc(this.db, 'sessions', id), session);
+    void this.analytics.trackEvent('session_create', {
+      session_id: id,
+      has_description: !!description,
+    });
     return id;
   }
 
@@ -75,6 +81,10 @@ export class SessionService {
       isHost: false, joinedAt: new Date(), online: true,
     };
     await updateDoc(ref, { participants: [...session.participants, participant], updatedAt: new Date() });
+    void this.analytics.trackEvent('session_join', {
+      session_id: sessionId,
+      participant_count: session.participants.length + 1,
+    });
   }
 
   async findSessionByCode(code: string): Promise<Session | null> {
@@ -86,6 +96,7 @@ export class SessionService {
 
   async startSession(sessionId: string): Promise<void> {
     await updateDoc(doc(this.db, 'sessions', sessionId), { status: 'active', updatedAt: new Date() });
+    void this.analytics.trackEvent('session_start', { session_id: sessionId });
   }
 
   async addStory(sessionId: string, title: string, description?: string, category?: StoryCategory, azureWorkItemId?: number): Promise<string> {
@@ -102,6 +113,13 @@ export class SessionService {
     };
     await setDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), story);
     await updateDoc(sessRef, { totalStories: (session.totalStories ?? 0) + 1, updatedAt: new Date() });
+    void this.analytics.trackEvent('story_add', {
+      session_id: sessionId,
+      story_id: storyId,
+      has_description: !!description,
+      has_azure_work_item: !!azureWorkItemId,
+      category: category ?? 'unclassified',
+    });
     return storyId;
   }
 
@@ -125,6 +143,7 @@ export class SessionService {
     await updateDoc(doc(this.db, 'sessions', sessionId), { status: 'active', currentStoryId: storyId, updatedAt: new Date() });
     const existing = await getDocs(collection(this.db, 'sessions', sessionId, 'stories', storyId, 'votes'));
     await Promise.all(existing.docs.map(d => deleteDoc(d.ref)));
+    void this.analytics.trackEvent('voting_start', { session_id: sessionId, story_id: storyId });
   }
 
   async castVote(sessionId: string, storyId: string, user: UserProfile, value: number | string): Promise<void> {
@@ -134,6 +153,11 @@ export class SessionService {
       characterClass: user.characterClass, value, createdAt: new Date(),
     };
     await setDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId, 'votes', user.uid), vote);
+    void this.analytics.trackEvent('vote_cast', {
+      session_id: sessionId,
+      story_id: storyId,
+      vote_kind: typeof value === 'number' ? 'numeric' : 'special',
+    });
   }
 
   getVotes(sessionId: string, storyId: string): Observable<Vote[]> {
@@ -149,6 +173,7 @@ export class SessionService {
 
   async revealVotes(sessionId: string, storyId: string): Promise<void> {
     await updateDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), { status: 'revealed' });
+    void this.analytics.trackEvent('votes_reveal', { session_id: sessionId, story_id: storyId });
   }
 
   async finalizeStory(sessionId: string, storyId: string, estimate: number | string): Promise<void> {
@@ -157,6 +182,11 @@ export class SessionService {
     const session = snap.data() as Session;
     await updateDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), { status: 'completed', finalEstimate: estimate, completedAt: new Date() });
     await updateDoc(sessRef, { completedStories: (session.completedStories ?? 0) + 1, currentStoryId: null, updatedAt: new Date() });
+    void this.analytics.trackEvent('story_finalize', {
+      session_id: sessionId,
+      story_id: storyId,
+      estimate_kind: typeof estimate === 'number' ? 'numeric' : 'special',
+    });
 
     const storiesSnap = await getDocs(collection(this.db, 'sessions', sessionId, 'stories'));
     const allDone = storiesSnap.docs.length > 0 &&
@@ -186,6 +216,7 @@ export class SessionService {
       completedStories: 0,
       updatedAt: new Date(),
     });
+    void this.analytics.trackEvent('stories_delete_all', { session_id: sessionId });
   }
 
   async deleteStory(sessionId: string, storyId: string): Promise<void> {
@@ -194,9 +225,11 @@ export class SessionService {
     const votes = await getDocs(votesRef);
     await Promise.all(votes.docs.map(v => deleteDoc(v.ref)));
     await deleteDoc(storyRef);
+    void this.analytics.trackEvent('story_delete', { session_id: sessionId, story_id: storyId });
   }
 
   async completeSession(sessionId: string): Promise<void> {
     await updateDoc(doc(this.db, 'sessions', sessionId), { status: 'completed', updatedAt: new Date() });
+    void this.analytics.trackEvent('session_complete', { session_id: sessionId });
   }
 }

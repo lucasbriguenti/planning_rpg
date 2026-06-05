@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { AnalyticsService } from './analytics.service';
 import { AzureAuthStore } from './azure-auth.store';
 
 export interface AzureTaskItem {
@@ -22,6 +23,7 @@ interface WorkItemResponse {
 export class AzureService {
   private readonly http = inject(HttpClient);
   private readonly authStore = inject(AzureAuthStore);
+  private readonly analytics = inject(AnalyticsService);
 
   async getChildTasks(
     organization: string,
@@ -45,7 +47,14 @@ export class AzureService {
       .filter(r => r.attributes?.name === 'Child')
       .map(r => r.url);
 
-    if (childUrls.length === 0) return [];
+    if (childUrls.length === 0) {
+      this.authStore.clear();
+      void this.analytics.trackEvent('azure_import_tasks', {
+        work_item_id: usId,
+        task_count: 0,
+      });
+      return [];
+    }
 
     const tasks = await Promise.allSettled(
       childUrls.map(url =>
@@ -54,6 +63,10 @@ export class AzureService {
     );
 
     this.authStore.clear();
+    void this.analytics.trackEvent('azure_import_tasks', {
+      work_item_id: usId,
+      task_count: tasks.filter((r): r is PromiseFulfilledResult<WorkItemResponse> => r.status === 'fulfilled').length,
+    });
 
     return tasks
       .filter((r): r is PromiseFulfilledResult<WorkItemResponse> => r.status === 'fulfilled')
@@ -81,6 +94,10 @@ export class AzureService {
       await firstValueFrom(
         this.http.patch(url, body, { headers: { 'Content-Type': 'application/json-patch+json' } })
       );
+      void this.analytics.trackEvent('azure_sync_estimate', {
+        work_item_id: workItemId,
+        estimate_kind: 'numeric',
+      });
     } catch (err) {
       throw this.mapError(err, workItemId);
     } finally {

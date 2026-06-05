@@ -5,12 +5,14 @@ import {
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { FirebaseService } from './firebase.service';
+import { AnalyticsService } from './analytics.service';
 import { UserProfile, levelFromXp } from '../models/user.model';
 import { AchievementStats, ACHIEVEMENTS } from '../models/achievement.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly db = inject(FirebaseService).db;
+  private readonly analytics = inject(AnalyticsService);
   private readonly ngZone = inject(NgZone);
 
   async createProfile(uid: string, profile: UserProfile): Promise<void> {
@@ -119,5 +121,10 @@ export class UserService {
 
   async saveAzureConfig(uid: string, config: { pat: string; organization: string; project: string }): Promise<void> {
     await setDoc(doc(this.db, 'users', uid, 'private', 'azure'), { ...config, updatedAt: new Date() });
+    void this.analytics.trackEvent('azure_config_save', {
+      has_pat: !!config.pat,
+      has_organization: !!config.organization,
+      has_project: !!config.project,
+    });
   }
 }
