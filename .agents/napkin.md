@@ -9,7 +9,10 @@
 
 ## Execução e Validação (Maior Prioridade)
 
-1. **[2026-06-03] Valide build/lint/test antes e depois de mudanças grandes**
+1. **[2026-06-05] Testes deste repo são via Vitest (não ng test)**
+   Faça em vez disso: use `npm test`/`npm run test:coverage` e para foco rápido rode `npm test -- <arquivo.spec.ts>` ou `npm test -- -t "<nome do teste>"`.
+
+2. **[2026-06-03] Valide build/lint/test antes e depois de mudanças grandes**
    Faça em vez disso: execute os scripts existentes do projeto em baseline e repita após implementar alterações estruturais.
 
 ## Confiabilidade de Shell e Comandos

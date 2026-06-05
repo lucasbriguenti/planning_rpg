@@ -15,9 +15,11 @@
 - [Pré-requisitos](#pré-requisitos)
 - [Configuração do Firebase](#configuração-do-firebase)
 - [Executar Localmente](#executar-localmente)
+- [Comandos de Desenvolvimento](#comandos-de-desenvolvimento)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Modelo de Dados (Firestore)](#modelo-de-dados-firestore)
 - [Deploy para Produção](#deploy-para-produção)
+- [Instruções para Copilot](#instruções-para-copilot)
 
 ---
 
@@ -166,8 +168,34 @@ firebase deploy --only firestore
 npm install
 
 # Servidor de desenvolvimento (http://localhost:4200)
-ng serve
+npm run start
 ```
+
+---
+
+## Comandos de Desenvolvimento
+
+```bash
+# Build de produção
+npm run build
+
+# Testes (Vitest)
+npm test
+
+# Testes em watch
+npm run test:watch
+
+# Cobertura
+npm run test:coverage
+
+# Rodar um único arquivo de teste
+npm test -- src/app/core/models/vote.model.spec.ts
+
+# Rodar teste por nome
+npm test -- -t "getVoteWeight"
+```
+
+Não há script de lint configurado atualmente no `package.json`.
 
 ---
 
@@ -207,12 +235,12 @@ src/
 │   │   │   └── session-room/         # Sala de votação em tempo real
 │   │   ├── profile/                  # Stats, edição de nome, troca de classe
 │   │   └── leaderboard/              # Pódio + ranking completo
-│   ├── app-module.ts
+│   ├── app-module.ts                 # NgModule raiz (AppModule)
 │   ├── app-routing-module.ts
 │   └── app.ts / app.html / app.scss
 ├── environments/
-│   ├── environment.ts                # ← credenciais Firebase (dev)
-│   └── environment.prod.ts           # ← credenciais Firebase (prod)
+│   ├── environment.ts                # re-exporta environment.local.ts
+│   └── environment.prod.ts           # re-exporta environment.local.prod.ts
 └── styles/
     ├── _variables.scss               # Paleta RPG, tipografia, espaçamentos
     └── _animations.scss              # cardReveal, glow-pulse, float, shimmer...
@@ -256,13 +284,21 @@ sessions/
 
 ```bash
 # Build otimizado
-ng build --configuration=production
+npm run build
 
 # Deploy no Firebase Hosting
 firebase deploy
 ```
 
 URL gerada: `https://seu-projeto.web.app`
+
+---
+
+## Instruções para Copilot
+
+As instruções operacionais para futuras sessões do Copilot estão em:
+
+`./.github/copilot-instructions.md`
 
 ---
 
