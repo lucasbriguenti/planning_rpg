@@ -238,3 +238,36 @@ h1, h2, h3, h4, h5, h6 {
   .toast-title   { font-family: $font-fantasy; font-size: 0.85rem; color: $color-gold; margin-bottom: 2px; }
   .toast-message { font-size: 0.85rem; color: $color-text-muted; }
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($color-bg-dark, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+}
+
+.modal-card {
+  background: $color-bg-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  padding: $spacing-2xl;
+  width: 100%;
+  box-shadow: $shadow-card;
+}
+
+.modal-title    { font-family: $font-fantasy; font-size: 1.4rem; color: $color-text; margin-bottom: $spacing-xs; }
+.modal-subtitle { color: $color-text-muted; font-size: 0.85rem; margin-bottom: $spacing-lg; }
+.modal-actions  { display: flex; gap: $spacing-sm; justify-content: flex-end; margin-top: $spacing-lg; }
+
+@media (max-width: $bp-md) {
+  .modal-card { padding: $spacing-lg; }
+}
+
+@media (max-width: $bp-sm) {
+  .modal-card { padding: $spacing-md; }
+}

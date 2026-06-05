@@ -33,6 +33,7 @@ export class ProfileComponent implements OnInit {
   readonly showPat      = signal(false);
   readonly editingPat   = signal(false);
   readonly savingPat    = signal(false);
+  readonly showAzureHelp = signal(false);
 
   readonly editingName  = signal(false);
   readonly nameInput    = signal('');

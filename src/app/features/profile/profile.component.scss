@@ -231,6 +231,160 @@
 
 .loading-content { text-align: center; }
 
+// Integration actions
+.integration-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+}
+
+.btn-help {
+  width: 24px;
+  height: 24px;
+  border-radius: $radius-full;
+  border: 1px solid $color-border;
+  background: rgba(white, 0.04);
+  color: $color-text-muted;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  transition: all $transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: $color-primary;
+    color: $color-primary-light;
+    background: rgba($color-primary, 0.1);
+  }
+}
+
+// Azure Help Modal
+.azure-help-card {
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.azure-help-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.azure-help-sections {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.help-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.help-section-title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-family: $font-fantasy;
+  font-size: 0.95rem;
+  color: $color-text;
+  margin-bottom: 2px;
+}
+
+.help-step {
+  width: 22px;
+  height: 22px;
+  border-radius: $radius-full;
+  background: $color-primary;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: $font-body;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: $color-text-muted;
+  margin: 0;
+
+  code {
+    font-family: $font-mono;
+    font-size: 0.8rem;
+    background: rgba(white, 0.06);
+    border-radius: $radius-sm;
+    padding: 1px 5px;
+    color: $color-accent;
+  }
+}
+
+.help-url-example {
+  font-family: $font-mono;
+  font-size: 0.78rem;
+  background: rgba(white, 0.04);
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  padding: $spacing-xs $spacing-sm;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.url-dim { color: $color-text-dim; }
+
+.url-highlight {
+  color: $color-accent;
+  font-weight: 700;
+  background: rgba($color-accent, 0.12);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.help-hint {
+  font-size: 0.78rem;
+  color: $color-text-dim;
+  margin: 0;
+
+  strong { color: $color-text-muted; }
+}
+
+.help-steps {
+  margin: $spacing-xs 0 0;
+  padding-left: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    font-size: 0.83rem;
+    color: $color-text-muted;
+    line-height: 1.45;
+
+    strong { color: $color-text; }
+    em { color: $color-accent; font-style: normal; }
+  }
+}
+
+.help-warning {
+  color: $color-warning;
+  font-weight: 600;
+}
+
 @media (max-width: $bp-md) {
   .profile-hero { padding: $spacing-lg; }
   .hero-top { flex-direction: column; align-items: center; text-align: center; }

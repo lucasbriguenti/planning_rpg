@@ -130,11 +130,14 @@
               </div>
             </div>
           </div>
-          @if (!editingPat()) {
-            <button class="btn btn-ghost btn-sm" (click)="startPatEdit()">
-              {{ azureConfig() ? 'Alterar' : 'Configurar' }}
-            </button>
-          }
+          <div class="integration-actions">
+            <button class="btn-help" (click)="showAzureHelp.set(true)" title="Como configurar">?</button>
+            @if (!editingPat()) {
+              <button class="btn btn-ghost btn-sm" (click)="startPatEdit()">
+                {{ azureConfig() ? 'Alterar' : 'Configurar' }}
+              </button>
+            }
+          </div>
         </div>
 
         @if (!editingPat()) {
@@ -198,6 +201,75 @@
         }
       </div>
     </section>
+
+    <!-- Azure Help Modal -->
+    @if (showAzureHelp()) {
+      <div class="modal-overlay" (click)="showAzureHelp.set(false)">
+        <div class="modal-card azure-help-card animate-fade-in-scale" (click)="$event.stopPropagation()">
+          <div class="azure-help-header">
+            <h2 class="modal-title">☁️ Como configurar o Azure DevOps</h2>
+            <button class="btn btn-ghost btn-sm" (click)="showAzureHelp.set(false)">✕</button>
+          </div>
+
+          <div class="azure-help-sections">
+            <!-- Organização -->
+            <div class="help-section">
+              <div class="help-section-title">
+                <span class="help-step">1</span>
+                <span>Organização</span>
+              </div>
+              <p class="help-text">
+                O nome da organização aparece na URL do Azure DevOps logo após <code>dev.azure.com/</code>:
+              </p>
+              <div class="help-url-example">
+                <span class="url-dim">https://dev.azure.com/</span><span class="url-highlight">minha-empresa</span><span class="url-dim">/meu-projeto</span>
+              </div>
+              <p class="help-hint">Digite apenas <strong>minha-empresa</strong>, sem barras ou URLs.</p>
+            </div>
+
+            <!-- Projeto -->
+            <div class="help-section">
+              <div class="help-section-title">
+                <span class="help-step">2</span>
+                <span>Projeto</span>
+              </div>
+              <p class="help-text">
+                Nome do projeto que vem após a organização na URL:
+              </p>
+              <div class="help-url-example">
+                <span class="url-dim">https://dev.azure.com/minha-empresa/</span><span class="url-highlight">meu-projeto</span>
+              </div>
+              <p class="help-hint">Também visível na lista de projetos ao entrar no Azure DevOps.</p>
+            </div>
+
+            <!-- PAT -->
+            <div class="help-section">
+              <div class="help-section-title">
+                <span class="help-step">3</span>
+                <span>Personal Access Token (PAT)</span>
+              </div>
+              <p class="help-text">Siga os passos para gerar um token:</p>
+              <ol class="help-steps">
+                <li>Acesse <strong>dev.azure.com</strong> e entre na sua conta</li>
+                <li>Clique na sua <strong>foto de perfil</strong> no canto superior direito</li>
+                <li>Selecione <strong>"Personal access tokens"</strong></li>
+                <li>Clique em <strong>"+ New Token"</strong></li>
+                <li>Dê um nome (ex: <em>Planning RPG</em>) e defina a expiração</li>
+                <li>Em <strong>Scopes</strong>, escolha <strong>Custom defined</strong></li>
+                <li>Marque <strong>Work Items → Read</strong> (e Write se quiser sincronizar estimativas)</li>
+                <li>Clique em <strong>"Create"</strong> e <span class="help-warning">copie o token imediatamente</span> — ele não será exibido novamente</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn-primary" (click)="showAzureHelp.set(false); startPatEdit()">
+              Configurar agora
+            </button>
+          </div>
+        </div>
+      </div>
+    }
 
     <!-- Achievements -->
     <section class="section animate-fade-in-up animate-delay-3">

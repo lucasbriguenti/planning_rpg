@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
+import { IosInstallBannerComponent } from './core/components/ios-install-banner/ios-install-banner.component';
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { XpLevelPipe } from './core/pipes/xp-level.pipe';
@@ -26,6 +27,7 @@ import { azureInterceptor } from './core/interceptors/azure.interceptor';
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    IosInstallBannerComponent,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
