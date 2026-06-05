@@ -88,15 +88,16 @@ export class SessionService {
     await updateDoc(doc(this.db, 'sessions', sessionId), { status: 'active', updatedAt: new Date() });
   }
 
-  async addStory(sessionId: string, title: string, description?: string, category?: StoryCategory): Promise<string> {
+  async addStory(sessionId: string, title: string, description?: string, category?: StoryCategory, azureWorkItemId?: number): Promise<string> {
     const sessRef = doc(this.db, 'sessions', sessionId);
     const snap = await getDoc(sessRef);
     const session = snap.data() as Session;
     const storyId = doc(collection(this.db, 'sessions', sessionId, 'stories')).id;
     const story: Story = {
       id: storyId, sessionId, title, status: 'pending',
-      ...(description ? { description } : {}),
-      ...(category    ? { category }    : {}),
+      ...(description      ? { description }      : {}),
+      ...(category         ? { category }         : {}),
+      ...(azureWorkItemId  ? { azureWorkItemId }   : {}),
       order: (session.totalStories ?? 0) + 1, createdAt: new Date(),
     };
     await setDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), story);

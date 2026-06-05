@@ -16,6 +16,7 @@ export interface Story {
   finalEstimate?: number | string;
   averageEstimate?: number;
   order: number;
+  azureWorkItemId?: number;
   votingStartedAt?: Date;
   completedAt?: Date;
   createdAt: Date;

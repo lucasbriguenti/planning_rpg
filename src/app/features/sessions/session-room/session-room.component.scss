@@ -263,10 +263,28 @@
 .vote-progress { font-size: 0.85rem; color: $color-text-muted; }
 
 .final-estimate-display {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
   margin-top: $spacing-sm;
   font-size: 0.9rem;
   color: $color-text-muted;
   strong { color: $color-gold; font-family: $font-fantasy; font-size: 1.1rem; }
+}
+
+
+.btn-azure {
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  &:hover { background: #106ebe; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .voting-story-title { font-family: $font-fantasy; font-size: 1.4rem; margin-bottom: $spacing-xs; }

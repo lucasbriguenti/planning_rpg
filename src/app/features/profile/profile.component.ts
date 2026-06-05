@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { take } from 'rxjs';
 
@@ -12,7 +13,7 @@ import { ACHIEVEMENTS } from '../../core/models/achievement.model';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -32,6 +33,10 @@ export class ProfileComponent implements OnInit {
   readonly showPat      = signal(false);
   readonly editingPat   = signal(false);
   readonly savingPat    = signal(false);
+
+  readonly editingName  = signal(false);
+  readonly nameInput    = signal('');
+  readonly savingName   = signal(false);
 
   readonly allAchievements = ACHIEVEMENTS;
   readonly classes = Object.entries(CHARACTER_CLASSES).map(([key, val]) => ({ key: key as CharacterClass, ...val }));
@@ -92,6 +97,32 @@ export class ProfileComponent implements OnInit {
       this.notify.error('Erro', 'Não foi possível salvar a configuração.');
     } finally {
       this.savingPat.set(false);
+    }
+  }
+
+  startNameEdit(): void {
+    this.nameInput.set(this.currentUser()?.displayName ?? '');
+    this.editingName.set(true);
+  }
+
+  cancelNameEdit(): void {
+    this.editingName.set(false);
+  }
+
+  async saveName(): Promise<void> {
+    const user = this.currentUser();
+    const name = this.nameInput().trim();
+    if (!user || !name || name === user.displayName || this.savingName()) return;
+    this.savingName.set(true);
+    try {
+      await this.userService.updateDisplayName(user.uid, name);
+      this.currentUser.set({ ...user, displayName: name });
+      this.editingName.set(false);
+      this.notify.success('Nome atualizado!', `Agora você é ${name}`);
+    } catch {
+      this.notify.error('Erro', 'Não foi possível atualizar o nome.');
+    } finally {
+      this.savingName.set(false);
     }
   }
 

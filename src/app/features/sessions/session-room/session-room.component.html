@@ -366,7 +366,12 @@
               }
               @if (viewingCompletedStory()!.finalEstimate !== undefined) {
                 <div class="final-estimate-display">
-                  Estimativa final: <strong>{{ viewingCompletedStory()!.finalEstimate }} pts</strong>
+                  <span>Estimativa final: <strong>{{ viewingCompletedStory()!.finalEstimate }} pts</strong></span>
+                  @if (isHost() && viewingCompletedStory()!.azureWorkItemId) {
+                    <button class="btn btn-azure btn-sm" (click)="syncToAzure()" [disabled]="syncingAzure()">
+                      {{ syncingAzure() ? '⏳ Sincronizando…' : '☁️ Sincronizar no Azure' }}
+                    </button>
+                  }
                 </div>
               }
             </div>

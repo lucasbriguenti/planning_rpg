@@ -64,6 +64,30 @@ export class AzureService {
       }));
   }
 
+  async updateWorkItemEstimate(
+    organization: string,
+    project: string,
+    pat: string,
+    workItemId: number,
+    estimate: number,
+  ): Promise<void> {
+    this.authStore.set(pat);
+    const url = `https://dev.azure.com/${encodeURIComponent(organization)}/${encodeURIComponent(project)}/_apis/wit/workitems/${workItemId}?api-version=7.1`;
+    const body = [
+      { op: 'replace', path: '/fields/Microsoft.VSTS.Scheduling.OriginalEstimate', value: estimate },
+      { op: 'replace', path: '/fields/Microsoft.VSTS.Scheduling.RemainingWork',    value: estimate },
+    ];
+    try {
+      await firstValueFrom(
+        this.http.patch(url, body, { headers: { 'Content-Type': 'application/json-patch+json' } })
+      );
+    } catch (err) {
+      throw this.mapError(err, workItemId);
+    } finally {
+      this.authStore.clear();
+    }
+  }
+
   private mapError(err: unknown, id: number): Error {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 401) return new Error('PAT inválido ou sem permissão.');

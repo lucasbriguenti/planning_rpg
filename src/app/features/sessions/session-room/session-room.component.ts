@@ -44,7 +44,8 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   readonly revealAnimation = signal(false);
 
   readonly azureConfig = signal<{ pat: string; organization: string; project: string } | null>(null);
-  readonly showAzureModal = signal(false);
+  readonly showAzureModal  = signal(false);
+  readonly syncingAzure    = signal(false);
   readonly azureUsNumber = signal('');
   readonly loadingUs = signal(false);
 
@@ -231,6 +232,12 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     const story = this.currentStory();
     if (!this.isHost() || !story) return;
     await this.sessionService.finalizeStory(this.session()!.id, story.id, estimate);
+
+    const completedStory = { ...story, status: 'completed' as const, finalEstimate: estimate };
+    this.viewingCompletedStory.set(completedStory);
+    this.viewingVotes.set(this.votes());
+    this.viewingVoteResult.set(this.voteResult());
+
     this.voteResult.set(null);
     this.votes.set([]);
     this.selectedCard.set(null);
@@ -257,7 +264,7 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
         tasks.map(task => {
           const title = `${task.id} - ${task.title}`;
           const category = this.detectCategory(task.title);
-          return this.sessionService.addStory(session.id, title, undefined, category);
+          return this.sessionService.addStory(session.id, title, undefined, category, task.id);
         })
       );
 
@@ -335,6 +342,28 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     await this.sessionService.completeSession(session.id);
     this.notify.success('Sessão concluída!', 'Parabéns pela aventura!');
     this.router.navigate(['/dashboard']);
+  }
+
+  async syncToAzure(): Promise<void> {
+    const story = this.viewingCompletedStory();
+    const cfg   = this.azureConfig();
+    if (!story?.azureWorkItemId || !cfg || this.syncingAzure()) return;
+
+    const estimate = Number(story.finalEstimate);
+    if (isNaN(estimate)) {
+      this.notify.error('Sincronização inválida', 'A estimativa final não é um número válido para o Azure.');
+      return;
+    }
+
+    this.syncingAzure.set(true);
+    try {
+      await this.azureService.updateWorkItemEstimate(cfg.organization, cfg.project, cfg.pat, story.azureWorkItemId, estimate);
+      this.notify.success('Azure sincronizado!', `Work item #${story.azureWorkItemId} atualizado com ${estimate}h.`);
+    } catch (err) {
+      this.notify.error('Erro ao sincronizar', err instanceof Error ? err.message : 'Falha na requisição.');
+    } finally {
+      this.syncingAzure.set(false);
+    }
   }
 
   private detectCategory(title: string): StoryCategory | undefined {

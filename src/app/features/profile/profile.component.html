@@ -11,7 +11,30 @@
         </div>
 
         <div class="hero-details">
-          <h1 class="profile-name">{{ currentUser()!.displayName }}</h1>
+          @if (editingName()) {
+            <div class="name-edit-form">
+              <input
+                class="form-control"
+                [ngModel]="nameInput()"
+                (ngModelChange)="nameInput.set($event)"
+                (keydown.enter)="saveName()"
+                (keydown.escape)="cancelNameEdit()"
+                maxlength="40"
+                autofocus
+              />
+              <div class="name-edit-actions">
+                <button class="btn btn-ghost btn-sm" (click)="cancelNameEdit()">Cancelar</button>
+                <button class="btn btn-primary btn-sm" (click)="saveName()" [disabled]="savingName()">
+                  {{ savingName() ? 'Salvando…' : 'Salvar' }}
+                </button>
+              </div>
+            </div>
+          } @else {
+            <h1 class="profile-name">
+              {{ currentUser()!.displayName }}
+              <button class="name-edit-btn" (click)="startNameEdit()" title="Editar nome">✏️</button>
+            </h1>
+          }
           <div class="profile-badges">
             <span
               class="badge badge-{{

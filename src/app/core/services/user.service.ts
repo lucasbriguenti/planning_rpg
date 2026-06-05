@@ -92,6 +92,10 @@ export class UserService {
     }
   }
 
+  async updateDisplayName(uid: string, displayName: string): Promise<void> {
+    await updateDoc(doc(this.db, 'users', uid), { displayName, updatedAt: new Date() });
+  }
+
   async updateCharacterClass(uid: string, characterClass: string): Promise<void> {
     await updateDoc(doc(this.db, 'users', uid), { characterClass, updatedAt: new Date() });
   }
