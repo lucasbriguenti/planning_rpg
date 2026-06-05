@@ -124,40 +124,74 @@
                 [class.viewing]="story.id === viewingCompletedStory()?.id"
                 (click)="selectStory(story)"
               >
-                <div class="story-status-icon">
-                  {{
-                    story.status === 'completed'
-                      ? '✅'
-                      : story.status === 'voting' || story.status === 'revealed'
-                        ? '🗳️'
-                        : '📌'
-                  }}
-                </div>
-                <div class="story-info">
-                  <span class="story-title">{{ story.title }}</span>
-                  <div class="story-meta">
-                    @if (story.category) {
-                      <span class="category-badge category-{{ story.category }}">
-                        {{ storyCategories[story.category].icon }} {{ storyCategories[story.category].label }}
-                      </span>
+                @if (editingStoryId() === story.id) {
+                  <!-- Edit mode -->
+                  <div class="story-edit-form" (click)="$event.stopPropagation()">
+                    <input
+                      class="form-control form-control-sm"
+                      [value]="editTitle()"
+                      (input)="editTitle.set($any($event.target).value)"
+                      (keydown.enter)="saveEditStory(story.id, $event)"
+                      (keydown.escape)="cancelEditStory($event)"
+                      placeholder="Título"
+                      autofocus
+                    />
+                    <div class="category-selector">
+                      @for (cat of storyCategoryEntries; track cat[0]) {
+                        <button
+                          type="button"
+                          class="category-btn"
+                          [class.active]="editCategory() === cat[0]"
+                          [style.--cat-color]="cat[1].color"
+                          (click)="editCategory.set(editCategory() === cat[0] ? undefined : cat[0])"
+                        >{{ cat[1].icon }} {{ cat[1].label }}</button>
+                      }
+                    </div>
+                    <div class="story-edit-actions">
+                      <button class="btn btn-ghost btn-sm" (click)="cancelEditStory($event)">Cancelar</button>
+                      <button class="btn btn-primary btn-sm" (click)="saveEditStory(story.id, $event)">Salvar</button>
+                    </div>
+                  </div>
+                } @else {
+                  <!-- Normal mode -->
+                  <div class="story-item-main">
+                    <div class="story-status-icon">
+                      {{
+                        story.status === 'completed'
+                          ? '✅'
+                          : story.status === 'voting' || story.status === 'revealed'
+                            ? '🗳️'
+                            : '📌'
+                      }}
+                    </div>
+                    <div class="story-info">
+                      <span class="story-title">{{ story.title }}</span>
+                      <div class="story-meta">
+                        @if (story.category) {
+                          <span class="category-badge category-{{ story.category }}">
+                            {{ storyCategories[story.category].icon }} {{ storyCategories[story.category].label }}
+                          </span>
+                        }
+                        @if (story.finalEstimate !== undefined) {
+                          <span class="story-estimate">{{ story.finalEstimate }} pts</span>
+                        }
+                      </div>
+                    </div>
+                    @if (isHost()) {
+                      <button class="story-menu-btn" (click)="toggleStoryMenu(story.id, $event)" title="Ações">⋯</button>
                     }
-                    @if (story.finalEstimate !== undefined) {
-                      <span class="story-estimate">{{ story.finalEstimate }} pts</span>
+                    @if (!isHost() && story.status !== 'pending' && story.id !== session()!.currentStoryId) {
+                      <span class="start-hint">ver</span>
                     }
                   </div>
-                </div>
-                @if (isHost() && story.id !== session()!.currentStoryId) {
-                  <span class="start-hint">Clique para votar</span>
-                }
-                @if (!isHost() && story.status !== 'pending' && story.id !== session()!.currentStoryId) {
-                  <span class="start-hint">Clique para ver</span>
-                }
-                @if (isHost() && story.id !== session()!.currentStoryId) {
-                  <button
-                    class="story-delete-btn"
-                    (click)="deleteStory(story, $event)"
-                    title="Excluir história"
-                  >✕</button>
+                  @if (openMenuStoryId() === story.id) {
+                    <div class="story-action-drawer" (click)="$event.stopPropagation()">
+                      <button class="drawer-btn" (click)="startEditStory(story, $event)">✏️ Editar</button>
+                      @if (story.id !== session()!.currentStoryId) {
+                        <button class="drawer-btn drawer-btn-danger" (click)="deleteStory(story, $event)">🗑️ Excluir</button>
+                      }
+                    </div>
+                  }
                 }
               </div>
             }

@@ -52,6 +52,11 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
   readonly viewingVotes = signal<Vote[]>([]);
   readonly viewingVoteResult = signal<Omit<VoteResult, 'storyId'> | null>(null);
 
+  readonly editingStoryId = signal<string | null>(null);
+  readonly editTitle = signal('');
+  readonly editCategory = signal<StoryCategory | undefined>(undefined);
+  readonly openMenuStoryId = signal<string | null>(null);
+
   readonly isHost = computed(() => this.session()?.hostId === this.currentUser()?.uid);
   readonly currentStory = computed(() => this.stories().find(s => s.id === this.session()?.currentStoryId));
   readonly pendingStories = computed(() => this.stories().filter(s => s.status === 'pending'));
@@ -273,6 +278,35 @@ export class SessionRoomComponent implements OnInit, OnDestroy {
     await this.sessionService.addStory(session.id, title, description || undefined, this.storyCategory());
     this.storyForm.reset();
     this.showAddStory.set(false);
+  }
+
+  toggleStoryMenu(storyId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openMenuStoryId.set(this.openMenuStoryId() === storyId ? null : storyId);
+  }
+
+  startEditStory(story: Story, event: Event): void {
+    event.stopPropagation();
+    this.openMenuStoryId.set(null);
+    this.editingStoryId.set(story.id);
+    this.editTitle.set(story.title);
+    this.editCategory.set(story.category);
+  }
+
+  cancelEditStory(event: Event): void {
+    event.stopPropagation();
+    this.editingStoryId.set(null);
+  }
+
+  async saveEditStory(storyId: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    const title = this.editTitle().trim();
+    if (!title || !this.session()) return;
+    await this.sessionService.updateStory(this.session()!.id, storyId, {
+      title,
+      category: this.editCategory() ?? null,
+    });
+    this.editingStoryId.set(null);
   }
 
   async deleteAllStories(): Promise<void> {

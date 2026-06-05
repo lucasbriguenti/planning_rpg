@@ -115,9 +115,13 @@ export class SessionService {
     });
   }
 
+  async updateStory(sessionId: string, storyId: string, updates: { title?: string; category?: StoryCategory | null }): Promise<void> {
+    await updateDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), { ...updates, updatedAt: new Date() });
+  }
+
   async startVoting(sessionId: string, storyId: string): Promise<void> {
     await updateDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), { status: 'voting', votingStartedAt: new Date() });
-    await updateDoc(doc(this.db, 'sessions', sessionId), { currentStoryId: storyId, updatedAt: new Date() });
+    await updateDoc(doc(this.db, 'sessions', sessionId), { status: 'active', currentStoryId: storyId, updatedAt: new Date() });
     const existing = await getDocs(collection(this.db, 'sessions', sessionId, 'stories', storyId, 'votes'));
     await Promise.all(existing.docs.map(d => deleteDoc(d.ref)));
   }
@@ -152,6 +156,16 @@ export class SessionService {
     const session = snap.data() as Session;
     await updateDoc(doc(this.db, 'sessions', sessionId, 'stories', storyId), { status: 'completed', finalEstimate: estimate, completedAt: new Date() });
     await updateDoc(sessRef, { completedStories: (session.completedStories ?? 0) + 1, currentStoryId: null, updatedAt: new Date() });
+
+    const storiesSnap = await getDocs(collection(this.db, 'sessions', sessionId, 'stories'));
+    const allDone = storiesSnap.docs.length > 0 &&
+      storiesSnap.docs.every(d => {
+        const s = d.data() as Story;
+        return d.id === storyId ? true : s.status === 'completed';
+      });
+    if (allDone) {
+      await updateDoc(sessRef, { status: 'completed', updatedAt: new Date() });
+    }
   }
 
   async deleteAllStories(sessionId: string): Promise<void> {
