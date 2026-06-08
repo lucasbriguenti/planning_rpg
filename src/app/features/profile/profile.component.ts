@@ -42,6 +42,10 @@ export class ProfileComponent implements OnInit {
   readonly editingName  = signal(false);
   readonly nameInput    = signal('');
   readonly savingName   = signal(false);
+  readonly showDeleteAccountModal = signal(false);
+  readonly deleteConfirmationInput = signal('');
+  readonly deletingAccount = signal(false);
+  readonly deleteConfirmationText = 'EXCLUIR MINHA CONTA';
 
   readonly allAchievements = ACHIEVEMENTS;
   readonly classes = Object.entries(CHARACTER_CLASSES).map(([key, val]) => ({ key: key as CharacterClass, ...val }));
@@ -147,5 +151,47 @@ export class ProfileComponent implements OnInit {
 
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  openDeleteAccountModal(): void {
+    this.deleteConfirmationInput.set('');
+    this.showDeleteAccountModal.set(true);
+  }
+
+  closeDeleteAccountModal(): void {
+    if (this.deletingAccount()) return;
+    this.showDeleteAccountModal.set(false);
+  }
+
+  async deleteAccount(): Promise<void> {
+    const profile = this.currentUser();
+    const authUser = this.authService.currentUser;
+    if (!profile || !authUser || authUser.uid !== profile.uid || this.deletingAccount()) return;
+    if (this.deleteConfirmationInput().trim() !== this.deleteConfirmationText) return;
+
+    const profileBackup: UserProfile = { ...profile, achievements: [...profile.achievements] };
+    const azureBackup = this.azureConfig() ? { ...this.azureConfig()! } : null;
+
+    this.deletingAccount.set(true);
+    try {
+      await this.userService.deleteUserData(profile.uid);
+      try {
+        await this.authService.deleteCurrentAccount();
+      } catch (authError) {
+        await this.userService.restoreDeletedUserData(profile.uid, profileBackup, azureBackup);
+        throw authError;
+      }
+
+      this.currentUser.set(null);
+      this.azureConfig.set(null);
+      this.showDeleteAccountModal.set(false);
+      this.deleteConfirmationInput.set('');
+      this.notify.success('Conta excluída', 'Sua conta foi removida com sucesso.');
+      await this.router.navigate(['/auth/login']);
+    } catch (error) {
+      this.notify.error('Erro ao excluir conta', this.authService.getDeleteAccountErrorMessage(error));
+    } finally {
+      this.deletingAccount.set(false);
+    }
   }
 }

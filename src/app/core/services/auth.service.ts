@@ -2,7 +2,7 @@ import { Injectable, NgZone, inject } from '@angular/core';
 import {
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   signOut, GoogleAuthProvider, signInWithPopup, updateProfile,
-  onAuthStateChanged, User,
+  onAuthStateChanged, User, deleteUser,
 } from 'firebase/auth';
 import { Observable, from, switchMap, of } from 'rxjs';
 import { FirebaseService } from './firebase.service';
@@ -87,5 +87,27 @@ export class AuthService {
         return of(undefined);
       })
     );
+  }
+
+  async deleteCurrentAccount(): Promise<void> {
+    const user = this.fb.auth.currentUser;
+    if (!user) {
+      throw new Error('auth/no-current-user');
+    }
+    await deleteUser(user);
+    void this.analytics.trackEvent('account_delete');
+  }
+
+  getDeleteAccountErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const code = (error as { code: string }).code;
+      if (code === 'auth/requires-recent-login') {
+        return 'Para excluir a conta, faça login novamente e tente de novo.';
+      }
+      if (code === 'auth/network-request-failed') {
+        return 'Falha de conexão. Verifique sua internet e tente novamente.';
+      }
+    }
+    return 'Não foi possível excluir sua conta agora. Tente novamente em instantes.';
   }
 }

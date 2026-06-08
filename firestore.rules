@@ -25,7 +25,7 @@ service cloud.firestore {
       allow read:   if authed();
       allow create: if authed() && userId == uid();
       allow update: if authed() && userId == uid();
-      allow delete: if false;
+      allow delete: if authed() && userId == uid();
     }
 
     // PAT do Azure e outros segredos — somente o dono lê e escreve

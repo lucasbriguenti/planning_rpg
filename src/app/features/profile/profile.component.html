@@ -284,8 +284,67 @@
       </div>
     }
 
-    <!-- Achievements -->
+    <!-- Danger Zone -->
     <section class="section animate-fade-in-up animate-delay-3">
+      <div class="section-title">⚠️ Zona de Perigo</div>
+      <div class="rpg-card danger-zone-card">
+        <div class="danger-zone-header">
+          <div>
+            <div class="danger-zone-title">Excluir conta</div>
+            <p class="danger-zone-desc">
+              Esta ação remove seu perfil e integração privada do Azure. Essa exclusão é permanente.
+            </p>
+          </div>
+          <button class="btn btn-danger btn-sm" type="button" (click)="openDeleteAccountModal()">
+            Excluir minha conta
+          </button>
+        </div>
+      </div>
+    </section>
+
+    @if (showDeleteAccountModal()) {
+      <div class="modal-overlay" (click)="closeDeleteAccountModal()">
+        <div class="modal-card delete-account-card animate-fade-in-scale" (click)="$event.stopPropagation()">
+          <div class="delete-account-header">
+            <h2 class="modal-title">Excluir conta permanentemente</h2>
+            <button class="btn btn-ghost btn-sm" type="button" (click)="closeDeleteAccountModal()" [disabled]="deletingAccount()">
+              ✕
+            </button>
+          </div>
+
+          <p class="delete-account-warning">
+            Esta ação não pode ser desfeita. Digite <strong>{{ deleteConfirmationText }}</strong> para confirmar.
+          </p>
+
+          <input
+            class="form-control"
+            [value]="deleteConfirmationInput()"
+            (input)="deleteConfirmationInput.set($any($event.target).value)"
+            [placeholder]="deleteConfirmationText"
+            [disabled]="deletingAccount()"
+            autocomplete="off"
+            spellcheck="false"
+          />
+
+          <div class="modal-actions">
+            <button class="btn btn-ghost" type="button" (click)="closeDeleteAccountModal()" [disabled]="deletingAccount()">
+              Cancelar
+            </button>
+            <button
+              class="btn btn-danger"
+              type="button"
+              (click)="deleteAccount()"
+              [disabled]="deletingAccount() || deleteConfirmationInput().trim() !== deleteConfirmationText"
+            >
+              {{ deletingAccount() ? 'Excluindo...' : 'Excluir conta' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Achievements -->
+    <section class="section animate-fade-in-up animate-delay-4">
       <div class="section-title">🏆 Conquistas</div>
       <div class="achievements-grid">
         @for (ach of allAchievements; track ach.id) {

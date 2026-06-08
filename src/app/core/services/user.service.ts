@@ -1,7 +1,7 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import {
   doc, setDoc, getDoc, updateDoc,
-  collection, query, orderBy, limit, onSnapshot,
+  collection, query, orderBy, limit, onSnapshot, deleteDoc,
 } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { FirebaseService } from './firebase.service';
@@ -126,5 +126,17 @@ export class UserService {
       has_organization: !!config.organization,
       has_project: !!config.project,
     });
+  }
+
+  async deleteUserData(uid: string): Promise<void> {
+    await deleteDoc(doc(this.db, 'users', uid, 'private', 'azure'));
+    await deleteDoc(doc(this.db, 'users', uid));
+  }
+
+  async restoreDeletedUserData(uid: string, profile: UserProfile, azureConfig: { pat: string; organization: string; project: string } | null): Promise<void> {
+    await setDoc(doc(this.db, 'users', uid), profile);
+    if (azureConfig) {
+      await setDoc(doc(this.db, 'users', uid, 'private', 'azure'), { ...azureConfig, updatedAt: new Date() });
+    }
   }
 }

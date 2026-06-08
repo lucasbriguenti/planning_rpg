@@ -22,7 +22,13 @@
 
 ## Guardrails de Comportamento de Domínio
 
-1. **[2026-06-03] Preserve sincronização em tempo real em features colaborativas**
+1. **[2026-06-08] Alinhe regras do Firestore antes de implementar ações destrutivas**
+   Faça em vez disso: ao adicionar exclusão/edição sensível, confira e ajuste `firestore.rules` no mesmo escopo para evitar fluxo quebrado por permissão.
+
+2. **[2026-06-08] Em exclusão de conta sem backend, proteja contra falha de reautenticação**
+   Faça em vez disso: faça backup do perfil/segredos, execute remoção de dados + delete no Auth e, se `auth/requires-recent-login`, restaure os dados antes de notificar erro.
+
+3. **[2026-06-03] Preserve sincronização em tempo real em features colaborativas**
    Faça em vez disso: centralize estado compartilhado em serviços reativos e persista no Firestore para evitar divergência entre clientes.
 
 ## Diretrizes do Usuário

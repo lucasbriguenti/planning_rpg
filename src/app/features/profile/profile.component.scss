@@ -421,12 +421,70 @@
   font-weight: 600;
 }
 
+.danger-zone-card {
+  border: 1px solid rgba($color-danger, 0.35);
+  background: linear-gradient(135deg, rgba($color-danger, 0.12), rgba($color-danger, 0.04));
+  padding: $spacing-md;
+}
+
+.danger-zone-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.danger-zone-title {
+  font-family: $font-fantasy;
+  font-size: 1rem;
+  color: $color-danger;
+}
+
+.danger-zone-desc {
+  margin: $spacing-xs 0 0;
+  font-size: 0.8rem;
+  color: $color-text-muted;
+  max-width: 520px;
+}
+
+.delete-account-card {
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  border: 1px solid rgba($color-danger, 0.4);
+}
+
+.delete-account-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.delete-account-warning {
+  margin: 0;
+  font-size: 0.85rem;
+  color: $color-text-muted;
+  line-height: 1.5;
+
+  strong {
+    color: $color-danger;
+    font-family: $font-mono;
+    font-size: 0.82rem;
+    background: rgba($color-danger, 0.15);
+    border-radius: $radius-sm;
+    padding: 1px 4px;
+  }
+}
+
 @media (max-width: $bp-md) {
   .profile-hero { padding: $spacing-lg; }
   .hero-top { flex-direction: column; align-items: center; text-align: center; }
   .profile-name { font-size: 1.6rem; }
   .profile-stats { grid-template-columns: repeat(2, 1fr); }
   .class-grid { grid-template-columns: repeat(2, 1fr); }
+  .danger-zone-header { flex-direction: column; align-items: flex-start; }
 }
 
 // ─── Light Theme ─────────────────────────────────────────────────────────────
@@ -480,4 +538,23 @@
   .url-dim { color: $lt-text-dim; }
   .help-hint { color: $lt-text-dim; strong { color: $lt-text-muted; } }
   .help-steps li { color: $lt-text-muted; strong { color: $lt-text; } }
+
+  .danger-zone-card {
+    border-color: rgba($color-danger, 0.3);
+    background: linear-gradient(135deg, rgba($color-danger, 0.08), rgba($color-danger, 0.03));
+  }
+  .danger-zone-title { color: $color-danger; }
+  .danger-zone-desc { color: $lt-text-muted; }
+
+  .delete-account-card {
+    border-color: rgba($color-danger, 0.45);
+    background: $lt-bg-card;
+  }
+  .delete-account-warning {
+    color: $lt-text-muted;
+    strong {
+      color: $color-danger;
+      background: rgba($color-danger, 0.12);
+    }
+  }
 }
