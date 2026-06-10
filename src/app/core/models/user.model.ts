@@ -26,8 +26,8 @@ export interface UserProfile {
 }
 
 export const CHARACTER_CLASSES: Record<CharacterClass, { name: string; icon: string; description: string; color: string }> = {
-  warrior: { name: 'Guerreiro Angular',    icon: '⚡', description: 'Domina componentes e reatividade',    color: '#dd1b16' },
-  mage:    { name: 'Mago do C#',           icon: '🔷', description: 'Conjura APIs e regras de negócio',    color: '#9b59b6' },
+  warrior: { name: 'Guerreiro da Luz',      icon: '⚡', description: 'Domina telas e reatividade',    color: '#dd1b16' },
+  mage:    { name: 'Mago das Sombras',     icon: '🔷', description: 'Conjura APIs e regras de negócio',    color: '#9b59b6' },
   archer:  { name: 'Arqueiro FullStack',   icon: '🎯', description: 'Atinge front e back com precisão',    color: '#27ae60' },
   paladin: { name: 'Mestre Tech Lead',     icon: '👑', description: 'Guia a equipe com visão técnica',     color: '#f39c12' },
   peasant: { name: 'Pequeno Camponês',     icon: '🌾', description: 'Iniciante em sua jornada de dev',     color: '#95a5a6' },
