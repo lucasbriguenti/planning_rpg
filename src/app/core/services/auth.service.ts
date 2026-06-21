@@ -2,7 +2,7 @@ import { Injectable, NgZone, inject } from '@angular/core';
 import {
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   signOut, GoogleAuthProvider, signInWithPopup, updateProfile,
-  onAuthStateChanged, User, deleteUser,
+  onAuthStateChanged, User, deleteUser, sendPasswordResetEmail,
 } from 'firebase/auth';
 import { Observable, from, switchMap, of } from 'rxjs';
 import { FirebaseService } from './firebase.service';
@@ -87,6 +87,24 @@ export class AuthService {
         return of(undefined);
       })
     );
+  }
+
+  resetPassword(email: string): Observable<void> {
+    return from(sendPasswordResetEmail(this.fb.auth, email));
+  }
+
+  getResetPasswordErrorMessage(error: unknown): string | null {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const code = (error as { code: string }).code;
+      if (code === 'auth/network-request-failed') {
+        return 'Falha de conexão. Verifique sua internet e tente novamente.';
+      }
+      if (code === 'auth/too-many-requests') {
+        return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+      }
+      if (code === 'auth/user-not-found') return null;
+    }
+    return null;
   }
 
   async deleteCurrentAccount(): Promise<void> {
