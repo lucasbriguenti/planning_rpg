@@ -56,7 +56,7 @@
 
   <!-- Toast notifications -->
   <div class="toast-container">
-    @for (n of notifications; track n.id) {
+    @for (n of notifications(); track n.id) {
       <div class="toast toast-{{ n.type }} animate-fade-in-up" (click)="dismissNotification(n.id)">
         <div class="toast-title">{{ n.title }}</div>
         <div class="toast-message">{{ n.message }}</div>

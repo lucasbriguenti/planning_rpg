@@ -46,3 +46,12 @@ Thumbs.db
 # Local Firebase config (do not commit)
 src/environments/environment.local.ts
 src/environments/environment.local.prod.ts
+.dual-graph/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

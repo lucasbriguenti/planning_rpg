@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, switchMap, of } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NotificationService, Notification } from './core/services/notification.service';
 import { AnalyticsService } from './core/services/analytics.service';
 import { UserService } from './core/services/user.service';
@@ -22,7 +23,7 @@ export class App implements OnInit {
   readonly notificationService = inject(NotificationService);
   readonly themeService = inject(ThemeService);
 
-  notifications: Notification[] = [];
+  readonly notifications = toSignal(this.notificationService.notifications$, { initialValue: [] as Notification[] });
   currentUser: UserProfile | null = null;
   isMenuOpen = false;
   xpPercentage = 0;
@@ -33,7 +34,6 @@ export class App implements OnInit {
   }
 
   ngOnInit(): void {
-    this.notificationService.notifications$.subscribe(n => (this.notifications = n));
     void this.analytics.trackPageView();
 
     this.authService.currentUser$().pipe(
